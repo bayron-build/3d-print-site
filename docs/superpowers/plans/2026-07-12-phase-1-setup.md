@@ -33,7 +33,7 @@
 
 **Why the temp-directory dance:** `create-next-app` derives the npm package name from the target directory name and rejects `3d print site` (spaces are not valid in npm names). So we scaffold into a subdirectory with a valid name, move the contents up to the repo root, and delete the empty subdirectory. Because the subdirectory is inside an existing git repo, `create-next-app` skips its own `git init` — no nested repo to clean up.
 
-- [ ] **Step 1: Scaffold into a temporary subdirectory**
+- [x] **Step 1: Scaffold into a temporary subdirectory**
 
 Run (from repo root):
 ```powershell
@@ -41,7 +41,7 @@ npx create-next-app@latest 3d-print-site-tmp --typescript --tailwind --eslint --
 ```
 Expected: exits successfully, prints "Success! Created 3d-print-site-tmp". (`--yes` auto-accepts any prompt not covered by a flag, e.g. Turbopack.)
 
-- [ ] **Step 2: Move the scaffold to the repo root and remove the temp dir**
+- [x] **Step 2: Move the scaffold to the repo root and remove the temp dir**
 
 ```powershell
 Get-ChildItem -Force "3d-print-site-tmp" | Move-Item -Destination "."
@@ -49,7 +49,7 @@ Remove-Item "3d-print-site-tmp"
 ```
 Expected: repo root now contains `app/`, `public/`, `package.json`, `node_modules/`, etc. `Remove-Item` succeeds because the dir is empty (if not, something failed to move — investigate before deleting).
 
-- [ ] **Step 3: Fix the package name**
+- [x] **Step 3: Fix the package name**
 
 In `package.json`, change:
 ```json
@@ -60,12 +60,12 @@ to:
   "name": "3d-print-site",
 ```
 
-- [ ] **Step 4: Verify the build**
+- [x] **Step 4: Verify the build**
 
 Run: `npm run build`
 Expected: completes with "Compiled successfully" and a route table listing `/`. This is the same command Vercel runs, so a green build here means a green deploy later.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add -A; git commit -m "feat: scaffold Next.js app (TypeScript, Tailwind, App Router)"
@@ -84,28 +84,28 @@ Expected: commit created; `git status` clean. Note: `node_modules/` must NOT app
 - Consumes: scaffold from Task 1.
 - Produces: `createClient(): Promise<SupabaseClient>` exported from `lib/supabase/server.ts` (async — reads request cookies) and `createClient(): SupabaseClient` from `lib/supabase/client.ts` (sync, browser). Env var names `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — all later phases use these exact names.
 
-- [ ] **Step 1: Install Supabase packages**
+- [x] **Step 1: Install Supabase packages**
 
 ```powershell
 npm install @supabase/supabase-js @supabase/ssr
 ```
 Expected: both appear under `dependencies` in `package.json`.
 
-- [ ] **Step 2: Create `.env.local`** (real values, gitignored)
+- [x] **Step 2: Create `.env.local`** (real values, gitignored)
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://pufuggwyyoybkadhtbef.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_2v1mWyS0G3FpqseTulIpcw_nRaP_6aQ
 ```
 
-- [ ] **Step 3: Create `.env.example`** (placeholders, committed — documents required config for anyone cloning the repo)
+- [x] **Step 3: Create `.env.example`** (placeholders, committed — documents required config for anyone cloning the repo)
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx
 ```
 
-- [ ] **Step 4: Un-ignore `.env.example`**
+- [x] **Step 4: Un-ignore `.env.example`**
 
 The scaffold's `.gitignore` contains a `.env*` rule that would also hide `.env.example`. Add a negation line directly below it:
 ```gitignore
@@ -113,7 +113,7 @@ The scaffold's `.gitignore` contains a `.env*` rule that would also hide `.env.e
 !.env.example
 ```
 
-- [ ] **Step 5: Create `lib/supabase/client.ts`**
+- [x] **Step 5: Create `lib/supabase/client.ts`**
 
 ```typescript
 import { createBrowserClient } from "@supabase/ssr";
@@ -128,7 +128,7 @@ export function createClient() {
 }
 ```
 
-- [ ] **Step 6: Create `lib/supabase/server.ts`**
+- [x] **Step 6: Create `lib/supabase/server.ts`**
 
 ```typescript
 import { createServerClient } from "@supabase/ssr";
@@ -164,12 +164,12 @@ export async function createClient() {
 }
 ```
 
-- [ ] **Step 7: Verify build and gitignore behavior**
+- [x] **Step 7: Verify build and gitignore behavior**
 
 Run: `npm run build` — Expected: "Compiled successfully".
 Run: `git status --short` — Expected: `.env.example` listed as untracked, `.env.local` **absent** (proves it's ignored). If `.env.local` appears, STOP and fix `.gitignore` before committing.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```powershell
 git add -A; git commit -m "feat: add Supabase client modules and env configuration"
@@ -185,9 +185,9 @@ git add -A; git commit -m "feat: add Supabase client modules and env configurati
 
 **Interfaces:**
 - Consumes: env var names from Task 2 (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`).
-- Produces: routes `/` and `/status`. Note: `/status` deliberately uses a raw `fetch` to Supabase's REST root instead of the client modules — with no tables yet (Phase 2), a plain authenticated HTTP 200 from `/rest/v1/` is the honest "URL + key + network all work" check. The client modules are exercised from Phase 2 onward.
+- Produces: routes `/` and `/status`. Note: `/status` deliberately uses a raw `fetch` to a Supabase health endpoint instead of the client modules — with no tables yet (Phase 2), a plain authenticated HTTP 200 is the honest "URL + key + network all work" check. The client modules are exercised from Phase 2 onward. **Amended during execution:** the REST root `/rest/v1/` only accepts *secret* keys (gateway error `UNAUTHORIZED_INVALID_API_KEY_TYPE`), so the check uses `/auth/v1/health` instead — verified to return 200 with the publishable key and 401 with a wrong/missing key.
 
-- [ ] **Step 1: Replace `app/layout.tsx`**
+- [x] **Step 1: Replace `app/layout.tsx`**
 
 Keep the font setup the scaffold generated (Geist imports and the `className` on `<body>`) and change only the metadata and `lang`:
 
@@ -199,7 +199,7 @@ export const metadata: Metadata = {
 ```
 And on the `<html>` element: `<html lang="nl">` — tells browsers, screen readers and search engines the page is Dutch.
 
-- [ ] **Step 2: Replace `app/page.tsx`**
+- [x] **Step 2: Replace `app/page.tsx`**
 
 ```typescript
 export default function Home() {
@@ -214,7 +214,7 @@ export default function Home() {
 }
 ```
 
-- [ ] **Step 3: Create `app/status/page.tsx`**
+- [x] **Step 3: Create `app/status/page.tsx`**
 
 ```typescript
 // Health-check page: proves the full chain (deploy -> env vars -> Supabase)
@@ -235,8 +235,10 @@ async function checkSupabase(): Promise<HealthResult> {
   }
 
   try {
-    // The REST root returns 200 for any valid API key; a wrong key gives 401.
-    const res = await fetch(`${url}/rest/v1/`, {
+    // The auth health endpoint returns 200 for any valid API key; a wrong or
+    // missing key gives 401. (The REST root /rest/v1/ can't be used here: it
+    // only accepts secret keys, which Phase 1 deliberately never touches.)
+    const res = await fetch(`${url}/auth/v1/health`, {
       headers: { apikey: key },
       cache: "no-store",
     });
@@ -265,7 +267,7 @@ export default async function StatusPage() {
 }
 ```
 
-- [ ] **Step 4: Verify locally**
+- [x] **Step 4: Verify locally**
 
 Start the dev server in the background: `npm run dev`
 Then check both routes:
@@ -276,7 +278,7 @@ Then check both routes:
 Expected: `200` and `True`. Then stop the dev server.
 Also run `npm run build` — Expected: "Compiled successfully", route table shows `/`, `/status`, and `/status` marked dynamic (ƒ).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add -A; git commit -m "feat: Dutch shell, placeholder homepage, /status health check"
