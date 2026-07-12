@@ -294,11 +294,11 @@ git add -A; git commit -m "feat: Dutch shell, placeholder homepage, /status heal
 - Consumes: all commits from Tasks 1–3.
 - Produces: public (or private) GitHub repo `3d-print-site` on branch `main` — Vercel imports from it in Task 5.
 
-- [ ] **Step 1 (MANUAL — repo owner): Create the GitHub repository**
+- [x] **Step 1 (MANUAL — repo owner): Create the GitHub repository** *(done via `gh` CLI: `bayron-build/3d-print-site`, public)*
 
 On github.com: New repository → name `3d-print-site` → visibility: owner's choice (public shows it as portfolio work) → **do not** add a README, .gitignore, or license (the local repo already has history; extra files would conflict).
 
-- [ ] **Step 2: Rename branch and push**
+- [x] **Step 2: Rename branch and push**
 
 ```powershell
 git branch -M main
