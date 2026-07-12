@@ -46,8 +46,8 @@ dependencies. **UI language: Dutch. Code, comments, variable names: English.**
 
 | Phase | Delivers | Status |
 |-------|----------|--------|
-| 1 | Project setup, Supabase connection, hello-world deploy to Vercel | in progress |
-| 2 | Database schema + admin auth + empty admin dashboard | — |
+| 1 | Project setup, Supabase connection, hello-world deploy to Vercel | done |
+| 2 | Database schema + admin auth + empty admin dashboard | done |
 | 3 | Request form (all three types) + file upload + license checkbox | — |
 | 4 | Admin dashboard: list, detail view, quoting, status updates | — |
 | 5 | Emails + customer status page via magic link | — |

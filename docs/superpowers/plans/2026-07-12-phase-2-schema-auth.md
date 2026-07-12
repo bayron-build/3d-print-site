@@ -614,17 +614,17 @@ git commit -m "feat: gated admin area with empty dashboard and logout"
 - Consumes: everything above; Vercel auto-deploys pushes to `main`.
 - Produces: Phase 2 live and recorded as done.
 
-- [ ] **Step 1: Push**
+- [x] **Step 1: Push**
 
 ```powershell
 git push
 ```
 
-- [ ] **Step 2: OWNER ACTION — verify on the live site**
+- [ ] **Step 2: OWNER ACTION — verify on the live site** *(automated checks pass: /admin → 307, /admin/login → 200, /status → 200 "verbonden"; owner browser login pending)*
 
 After Vercel finishes deploying (a minute or two), repeat the Task 5 browser checklist on `https://3d-print-site-five.vercel.app` (`/admin`, `/admin/login`, login, count, logout). Also confirm `/status` still shows "Database verbonden ✓".
 
-- [ ] **Step 3: Update the roadmap**
+- [x] **Step 3: Update the roadmap**
 
 In `docs/ROADMAP.md`, update the phase table rows for Phase 1 and Phase 2:
 
@@ -633,7 +633,7 @@ In `docs/ROADMAP.md`, update the phase table rows for Phase 1 and Phase 2:
 | 2 | Database schema + admin auth + empty admin dashboard | done |
 ```
 
-- [ ] **Step 4: Commit and push**
+- [x] **Step 4: Commit and push**
 
 ```powershell
 git add docs/ROADMAP.md
