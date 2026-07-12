@@ -317,13 +317,13 @@ Expected: push succeeds; the repo page on GitHub shows `app/`, `lib/`, `docs/` a
 - Consumes: GitHub repo from Task 4, env var names from Task 2.
 - Produces: live `https://<project>.vercel.app` URL; every future `git push` to `main` auto-deploys.
 
-- [ ] **Step 1 (MANUAL — repo owner): Sign up and import**
+- [x] **Step 1 (MANUAL — repo owner): Sign up and import**
 
 1. vercel.com → "Sign up" → **Continue with GitHub** (Hobby/free plan).
 2. "Add New… → Project" → Import `3d-print-site` (authorize GitHub access when asked).
 3. Framework preset: Next.js is auto-detected — leave all build settings untouched.
 
-- [ ] **Step 2 (MANUAL — repo owner): Add environment variables**
+- [x] **Step 2 (MANUAL — repo owner): Add environment variables**
 
 In the import screen, expand **Environment Variables** and add both, exactly as in `.env.local`:
 
@@ -334,13 +334,15 @@ In the import screen, expand **Environment Variables** and add both, exactly as 
 
 Then click **Deploy**.
 
-- [ ] **Step 3: Verify the live deployment**
+- [x] **Step 3: Verify the live deployment**
 
 Open `https://<project>.vercel.app/status` in a browser.
 Expected: "Database verbonden ✓".
 If it shows "Omgevingsvariabelen ontbreken": env vars weren't set for the Production environment — add them in Vercel → Settings → Environment Variables and redeploy.
 If it shows "HTTP 401": the key was pasted wrong — compare against `.env.local`.
 
-- [ ] **Step 4: Mark Phase 1 done**
+- [x] **Step 4: Mark Phase 1 done**
 
 No commit needed. Record the live URL for later phases (Phase 5 emails link to it).
+
+**Phase 1 complete (2026-07-12).** Live URL: `https://3d-print-site-five.vercel.app` — verified `/status` returns "Database verbonden ✓". GitHub: `https://github.com/bayron-build/3d-print-site` (public). Env vars set for Production and Preview.
