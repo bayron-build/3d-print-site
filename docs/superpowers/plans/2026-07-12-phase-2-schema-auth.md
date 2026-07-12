@@ -30,7 +30,7 @@
 - Consumes: nothing (first task).
 - Produces: tables `public.products`, `public.requests`, `public.request_files` (columns below) that Tasks 2 and 5 rely on; the `requests` count query in Task 5 needs `requests` to exist with RLS enabled.
 
-- [ ] **Step 1: Write the migration file**
+- [x] **Step 1: Write the migration file**
 
 Create `supabase/migrations/0001_initial_schema.sql`:
 
@@ -102,7 +102,7 @@ curl.exe -s -H "apikey: sb_publishable_2v1mWyS0G3FpqseTulIpcw_nRaP_6aQ" "https:/
 
 Expected: `[]` — the table exists (a missing table returns a JSON error mentioning "Could not find the table") and RLS hides all rows from anonymous callers.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit** *(done — commit exists; run steps 2–3 before pushing)*
 
 ```powershell
 git add supabase/migrations/0001_initial_schema.sql
@@ -120,7 +120,7 @@ git commit -m "feat: add initial schema migration (products, requests, request_f
 - Consumes: the three tables from Task 1.
 - Produces: SQL function `public.is_admin() returns boolean`; "Admin full access" policies on all three tables; a Supabase user whose `app_metadata` contains `"role": "admin"`. Tasks 4–5 log in as this user; the Task 5 count query succeeds only because of these policies.
 
-- [ ] **Step 1: Write the policies file**
+- [x] **Step 1: Write the policies file**
 
 Create `supabase/migrations/0002_rls_policies.sql`:
 
@@ -197,7 +197,7 @@ select public.is_admin();
 
 Expected: one row whose `raw_app_meta_data` contains `"role": "admin"`; the `is_admin()` call returns `false` (the SQL editor has no user JWT — this only proves the function runs).
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit** *(done — commit exists; run steps 2–6 before pushing)*
 
 ```powershell
 git add supabase/migrations/0002_rls_policies.sql
@@ -216,7 +216,7 @@ git commit -m "feat: add RLS policies with admin role claim"
 - Consumes: env vars (Global Constraints).
 - Produces: `updateSession(request: NextRequest): Promise<NextResponse>` exported from `lib/supabase/proxy.ts`; automatic session-cookie refresh on every page request, which Tasks 4–5 rely on to keep the admin logged in.
 
-- [ ] **Step 1: Write the session-refresh helper**
+- [x] **Step 1: Write the session-refresh helper**
 
 Create `lib/supabase/proxy.ts`:
 
@@ -259,7 +259,7 @@ export async function updateSession(request: NextRequest) {
 }
 ```
 
-- [ ] **Step 2: Write the proxy entry point**
+- [x] **Step 2: Write the proxy entry point**
 
 Create `proxy.ts` in the repo root:
 
@@ -282,12 +282,12 @@ export const config = {
 };
 ```
 
-- [ ] **Step 3: Verify the build**
+- [x] **Step 3: Verify the build** *(passes: `ƒ Proxy (Middleware)` in output, no deprecation warning)*
 
 Run: `npm run build`
 Expected: build succeeds with no type errors and the output mentions the proxy (and **no** deprecation warning about `middleware`).
 
-- [ ] **Step 4: Verify existing pages still work**
+- [x] **Step 4: Verify existing pages still work** *(/status → 200)*
 
 Start `npm run dev` in the background, then:
 
@@ -297,7 +297,7 @@ curl.exe -s -o NUL -w "%{http_code}" http://localhost:3000/status
 
 Expected: `200`. Stop the dev server afterwards (or leave it running for later tasks).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add proxy.ts lib/supabase/proxy.ts
@@ -318,7 +318,7 @@ git commit -m "feat: refresh Supabase session via Next 16 proxy"
 - Consumes: `createClient()` from `lib/supabase/server.ts` (Phase 1); session refresh from Task 3; admin user from Task 2.
 - Produces: `getAdminSession(): Promise<{ isAdmin: boolean; email: string | null }>` from `lib/supabase/auth.ts` (Task 5 uses it); `login(prevState: LoginState, formData: FormData): Promise<LoginState>` and `type LoginState = { error: string | null }` from `app/admin/login/actions.ts`; the `/admin/login` route.
 
-- [ ] **Step 1: Write the admin-session helper**
+- [x] **Step 1: Write the admin-session helper**
 
 Create `lib/supabase/auth.ts`:
 
@@ -344,7 +344,7 @@ export async function getAdminSession(): Promise<{
 }
 ```
 
-- [ ] **Step 2: Write the login server action**
+- [x] **Step 2: Write the login server action**
 
 Create `app/admin/login/actions.ts`:
 
@@ -378,7 +378,7 @@ export async function login(
 }
 ```
 
-- [ ] **Step 3: Write the login form (client component)**
+- [x] **Step 3: Write the login form (client component)**
 
 Create `app/admin/login/login-form.tsx`:
 
@@ -428,7 +428,7 @@ export function LoginForm() {
 }
 ```
 
-- [ ] **Step 4: Write the login page**
+- [x] **Step 4: Write the login page**
 
 Create `app/admin/login/page.tsx`:
 
@@ -452,19 +452,19 @@ export default async function LoginPage() {
 }
 ```
 
-- [ ] **Step 5: Verify the build**
+- [x] **Step 5: Verify the build** *(passes, `/admin/login` in route output)*
 
 Run: `npm run build`
 Expected: succeeds, `/admin/login` listed in the route output.
 
-- [ ] **Step 6: Verify the login flow (dev server + owner)**
+- [ ] **Step 6: Verify the login flow (dev server + owner)** *(curl check done: 200; owner browser check pending)*
 
 With `npm run dev` running:
 
 1. `curl.exe -s -o NUL -w "%{http_code}" http://localhost:3000/admin/login` → expected `200`.
 2. **OWNER ACTION:** open `http://localhost:3000/admin/login` in a browser. Submit a wrong password → the Dutch error "E-mailadres of wachtwoord onjuist." appears inline. Then log in with the real admin credentials → redirect to `/admin`, which shows a **404 for now** (the dashboard is Task 5). The redirect + 404 is the expected success signal at this point.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```powershell
 git add lib/supabase/auth.ts app/admin/login/actions.ts app/admin/login/login-form.tsx app/admin/login/page.tsx
@@ -484,7 +484,7 @@ git commit -m "feat: admin login page with server action"
 - Consumes: `getAdminSession()` from Task 4; `createClient()` from `lib/supabase/server.ts`; tables + policies from Tasks 1–2.
 - Produces: `logout(): Promise<void>` server action (always ends in a redirect); the gated `/admin` route. Phase 4 will replace the placeholder page content but keep this layout and gate.
 
-- [ ] **Step 1: Write the logout action**
+- [x] **Step 1: Write the logout action**
 
 Create `app/admin/(protected)/actions.ts`:
 
@@ -501,7 +501,7 @@ export async function logout() {
 }
 ```
 
-- [ ] **Step 2: Write the gate layout**
+- [x] **Step 2: Write the gate layout**
 
 Create `app/admin/(protected)/layout.tsx`:
 
@@ -544,7 +544,7 @@ export default async function AdminLayout({
 }
 ```
 
-- [ ] **Step 3: Write the dashboard page**
+- [x] **Step 3: Write the dashboard page**
 
 Create `app/admin/(protected)/page.tsx` (served at `/admin`):
 
@@ -578,12 +578,12 @@ export default async function AdminDashboardPage() {
 }
 ```
 
-- [ ] **Step 4: Verify the build**
+- [x] **Step 4: Verify the build** *(passes, `/admin` and `/admin/login` both in route output)*
 
 Run: `npm run build`
 Expected: succeeds; `/admin` and `/admin/login` both in the route output.
 
-- [ ] **Step 5: Verify the full local checklist**
+- [ ] **Step 5: Verify the full local checklist** *(curl check done: /admin → 307 logged out; owner browser checks pending)*
 
 With `npm run dev` running:
 
@@ -596,7 +596,7 @@ With `npm run dev` running:
 
 If the dashboard shows "Kon aanvragen niet laden" instead of a count, the role claim is not in the JWT — the owner must log out and back in (Task 2 Step 4 note), not skip this.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add "app/admin/(protected)/layout.tsx" "app/admin/(protected)/actions.ts" "app/admin/(protected)/page.tsx"
