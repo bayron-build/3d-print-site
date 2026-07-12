@@ -87,12 +87,12 @@ alter table public.requests enable row level security;
 alter table public.request_files enable row level security;
 ```
 
-- [ ] **Step 2: OWNER ACTION — run the migration**
+- [x] **Step 2: OWNER ACTION — run the migration**
 
 Ask the owner to open Supabase → SQL Editor, paste the full contents of `supabase/migrations/0001_initial_schema.sql`, and run it.
 Expected: "Success. No rows returned".
 
-- [ ] **Step 3: Verify the tables exist and anonymous access is blocked**
+- [x] **Step 3: Verify the tables exist and anonymous access is blocked** *(returns `[]`)*
 
 Run:
 
@@ -160,16 +160,16 @@ create policy "Admin full access" on public.request_files
   with check (public.is_admin());
 ```
 
-- [ ] **Step 2: OWNER ACTION — run the policies file**
+- [x] **Step 2: OWNER ACTION — run the policies file**
 
 Ask the owner to run the full contents of `supabase/migrations/0002_rls_policies.sql` in the SQL Editor.
 Expected: "Success. No rows returned".
 
-- [ ] **Step 3: OWNER ACTION — create the admin user**
+- [x] **Step 3: OWNER ACTION — create the admin user**
 
 Ask the owner: Supabase → Authentication → Users → Add user → Create new user. Enter their admin email and a strong password, enable **Auto Confirm User**, create.
 
-- [ ] **Step 4: OWNER ACTION — stamp the admin claim**
+- [x] **Step 4: OWNER ACTION — stamp the admin claim** *(note: current SQL editor shows "Success. No rows returned" for UPDATE; verified via select)*
 
 Ask the owner to run this in the SQL Editor **with their admin email filled in**:
 
@@ -182,11 +182,11 @@ where email = 'THEIR-ADMIN-EMAIL';
 
 Expected: "Success. 1 rows affected". **0 rows means the email doesn't match — fix and re-run.** The claim lands in the JWT at the next login, so any already-open session must log out and back in.
 
-- [ ] **Step 5: OWNER ACTION — disable public signups**
+- [x] **Step 5: OWNER ACTION — disable public signups**
 
 Ask the owner: Supabase → Authentication → Sign In / Providers → turn **off** "Allow new users to sign up" → save.
 
-- [ ] **Step 6: Verify claim and function**
+- [x] **Step 6: Verify claim and function**
 
 Ask the owner to run in the SQL Editor:
 
@@ -457,7 +457,7 @@ export default async function LoginPage() {
 Run: `npm run build`
 Expected: succeeds, `/admin/login` listed in the route output.
 
-- [ ] **Step 6: Verify the login flow (dev server + owner)** *(curl check done: 200; owner browser check pending)*
+- [x] **Step 6: Verify the login flow (dev server + owner)** *(curl 200; owner confirmed browser flow)*
 
 With `npm run dev` running:
 
@@ -583,7 +583,7 @@ export default async function AdminDashboardPage() {
 Run: `npm run build`
 Expected: succeeds; `/admin` and `/admin/login` both in the route output.
 
-- [ ] **Step 5: Verify the full local checklist** *(curl check done: /admin → 307 logged out; owner browser checks pending)*
+- [x] **Step 5: Verify the full local checklist** *(curl 307 logged out; owner confirmed full browser checklist)*
 
 With `npm run dev` running:
 
