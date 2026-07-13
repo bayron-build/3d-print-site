@@ -48,7 +48,7 @@ dependencies. **UI language: Dutch. Code, comments, variable names: English.**
 |-------|----------|--------|
 | 1 | Project setup, Supabase connection, hello-world deploy to Vercel | done |
 | 2 | Database schema + admin auth + empty admin dashboard | done |
-| 3 | Request form (all three types) + file upload + license checkbox | — |
+| 3 | Request form (all three types) + file upload + license checkbox | done |
 | 4 | Admin dashboard: list, detail view, quoting, status updates | — |
 | 5 | Emails + customer status page via magic link | — |
 | 6 | Public landing page + catalog (Dutch copy provided by owner) | — |
