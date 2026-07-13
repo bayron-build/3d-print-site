@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import {
   REQUEST_STATUSES,
   STATUS_LABELS,
@@ -15,6 +15,15 @@ const initialState: UpdateState = { errors: null, ok: false };
 function feeToInput(value: number | string | null): string {
   if (value === null) return "";
   return String(value).replace(".", ",");
+}
+
+// Lenient client-side parse for the convenience total only — accepts comma or
+// dot, treats empty/unparseable as no value. Not validation.
+function parseFeeLoose(raw: string): number | null {
+  const normalized = raw.trim().replace(",", ".");
+  if (normalized === "") return null;
+  const n = Number.parseFloat(normalized);
+  return Number.isFinite(n) ? n : null;
 }
 
 export function QuoteForm({
@@ -36,6 +45,14 @@ export function QuoteForm({
   );
   const errors = state.errors ?? {};
 
+  const [designFeeInput, setDesignFeeInput] = useState(feeToInput(designFee));
+  const [printFeeInput, setPrintFeeInput] = useState(feeToInput(printFee));
+
+  const designAmount = parseFeeLoose(designFeeInput);
+  const printAmount = parseFeeLoose(printFeeInput);
+  const hasTotal = designAmount !== null || printAmount !== null;
+  const total = (designAmount ?? 0) + (printAmount ?? 0);
+
   return (
     <form action={formAction} className="mt-4 flex flex-col gap-4">
       <input type="hidden" name="requestId" value={requestId} />
@@ -47,7 +64,8 @@ export function QuoteForm({
             type="text"
             name="designFee"
             inputMode="decimal"
-            defaultValue={feeToInput(designFee)}
+            value={designFeeInput}
+            onChange={(e) => setDesignFeeInput(e.target.value)}
             placeholder="bijv. 15,00"
             className="rounded border border-gray-300 px-3 py-2"
           />
@@ -62,7 +80,8 @@ export function QuoteForm({
             type="text"
             name="printFee"
             inputMode="decimal"
-            defaultValue={feeToInput(printFee)}
+            value={printFeeInput}
+            onChange={(e) => setPrintFeeInput(e.target.value)}
             placeholder="bijv. 7,50"
             className="rounded border border-gray-300 px-3 py-2"
           />
@@ -71,6 +90,12 @@ export function QuoteForm({
           )}
         </label>
       </div>
+
+      {hasTotal && (
+        <p className="text-sm text-gray-600">
+          Totaal: € {total.toFixed(2).replace(".", ",")}
+        </p>
+      )}
 
       <label className="flex flex-col gap-1">
         <span className="text-sm font-medium">Status</span>

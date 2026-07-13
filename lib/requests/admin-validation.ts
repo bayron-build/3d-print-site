@@ -25,7 +25,7 @@ export type QuoteValidationResult =
 // decimals, using a dot or a Dutch comma as separator. Anything else is a
 // validation error. No sign is allowed, so negatives are rejected by the
 // pattern itself.
-const FEE_PATTERN = /^\d+([.]\d{1,2})?$/;
+const FEE_PATTERN = /^\d{1,8}([.]\d{1,2})?$/;
 
 export function parseFee(
   raw: string

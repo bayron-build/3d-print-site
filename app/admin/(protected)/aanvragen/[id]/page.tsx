@@ -43,7 +43,7 @@ export default async function RequestDetailPage({
   const { data: request, error } = await supabase
     .from("requests")
     .select(
-      "id, created_at, type, customer_name, email, phone, description, color, material, quantity, license_accepted, status, quote_design_fee, quote_print_fee, admin_notes, product_id, products(name)"
+      "id, created_at, type, customer_name, email, phone, description, color, material, quantity, status, quote_design_fee, quote_print_fee, admin_notes, products(name)"
     )
     .eq("id", id)
     .maybeSingle();
@@ -59,7 +59,7 @@ export default async function RequestDetailPage({
     notFound();
   }
 
-  const { data: files } = await supabase
+  const { data: files, error: filesError } = await supabase
     .from("request_files")
     .select("id, storage_path, original_name, size_bytes")
     .eq("request_id", id)
@@ -164,7 +164,11 @@ export default async function RequestDetailPage({
       {request.type === "file" && (
         <section className="mt-6">
           <h2 className="text-sm font-medium text-gray-600">Bestanden</h2>
-          {files && files.length > 0 ? (
+          {filesError ? (
+            <p className="mt-2 text-sm text-red-700">
+              Kon bestanden niet laden.
+            </p>
+          ) : files && files.length > 0 ? (
             <ul className="mt-2 flex flex-col gap-1 text-sm">
               {files.map((file) => {
                 const url = signedUrls[file.storage_path];

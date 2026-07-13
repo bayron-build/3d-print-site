@@ -44,6 +44,11 @@ describe("parseFee", () => {
     expect(parseFee("1.2.3")).toEqual({ ok: false });
     expect(parseFee("€10")).toEqual({ ok: false });
   });
+
+  it("rejects amounts beyond numeric(10,2) precision (9+ integer digits)", () => {
+    expect(parseFee("123456789")).toEqual({ ok: false });
+    expect(parseFee("99999999")).toEqual({ ok: true, value: 99999999 });
+  });
 });
 
 describe("validateQuote", () => {
