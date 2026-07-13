@@ -4,6 +4,7 @@ import { priceToInput } from "@/lib/products/validation";
 import { updateProduct } from "../actions";
 import { ProductForm } from "../product-form";
 import { PhotoManager } from "./photo-manager";
+import { DeleteProductButton } from "./delete-button";
 
 export default async function EditProductPage({
   params,
@@ -35,7 +36,7 @@ export default async function EditProductPage({
         submitLabel="Opslaan"
       />
       <PhotoManager productId={product.id} photos={product.photos} />
-      {/* DeleteProductButton (Task 13) mounts here. */}
+      <DeleteProductButton productId={product.id} />
     </div>
   );
 }

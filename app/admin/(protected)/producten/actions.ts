@@ -97,6 +97,65 @@ export async function updateProduct(
   return { errors: null, ok: true };
 }
 
+export type DeleteProductState = { error: string | null };
+
+const PRODUCT_IN_USE =
+  "Dit product is gebruikt in aanvragen en kan niet worden verwijderd. Zet het op inactief.";
+
+// Spec order: check for referencing requests BEFORE touching storage, so a
+// product that must stay keeps its photos. The storage sweep lists the
+// product's folder, which also removes any orphaned uploads in it.
+export async function deleteProduct(
+  _prevState: DeleteProductState,
+  formData: FormData
+): Promise<DeleteProductState> {
+  const productId = String(formData.get("productId") ?? "");
+  if (!productId) {
+    return { error: GENERIC_ERROR };
+  }
+
+  const supabase = await createClient();
+
+  const { count, error: countError } = await supabase
+    .from("requests")
+    .select("id", { count: "exact", head: true })
+    .eq("product_id", productId);
+  if (countError) {
+    return { error: GENERIC_ERROR };
+  }
+  if ((count ?? 0) > 0) {
+    return { error: PRODUCT_IN_USE };
+  }
+
+  const { data: objects, error: listError } = await supabase.storage
+    .from("product-photos")
+    .list(productId);
+  if (listError) {
+    return { error: "Kon de foto's niet ophalen." };
+  }
+  if (objects && objects.length > 0) {
+    const { error: removeError } = await supabase.storage
+      .from("product-photos")
+      .remove(objects.map((object) => `${productId}/${object.name}`));
+    if (removeError) {
+      return { error: "Kon de foto's niet verwijderen." };
+    }
+  }
+
+  const { error: deleteError } = await supabase
+    .from("products")
+    .delete()
+    .eq("id", productId);
+  if (deleteError) {
+    // FK from a request created between the check and the delete —
+    // effectively theoretical for a single admin.
+    return { error: PRODUCT_IN_USE };
+  }
+
+  revalidateProductPaths(productId);
+  redirect("/admin/producten");
+}
+
 export type PhotoActionResult = { ok: boolean; message?: string };
 
 // The bytes went browser → storage already (10MB photos cannot ride through
