@@ -63,3 +63,36 @@ export async function createProduct(
   // Photos are uploaded on the edit page, against the row that now exists.
   redirect(`/admin/producten/${data.id}`);
 }
+
+export async function updateProduct(
+  _prevState: ProductFormState,
+  formData: FormData
+): Promise<ProductFormState> {
+  const productId = String(formData.get("productId") ?? "");
+  if (!productId) {
+    return { errors: { form: GENERIC_ERROR }, ok: false };
+  }
+
+  const result = validateProduct(readProductInput(formData));
+  if (!result.ok) {
+    return { errors: result.errors, ok: false };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("products")
+    .update({
+      name: result.data.name,
+      description: result.data.description,
+      indicative_price: result.data.indicativePrice,
+      active: result.data.active,
+    })
+    .eq("id", productId);
+
+  if (error) {
+    return { errors: { form: GENERIC_ERROR }, ok: false };
+  }
+
+  revalidateProductPaths(productId);
+  return { errors: null, ok: true };
+}
