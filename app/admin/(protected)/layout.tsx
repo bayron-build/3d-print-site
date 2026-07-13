@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/supabase/auth";
 import { logout } from "./actions";
@@ -17,7 +18,17 @@ export default async function AdminLayout({
   return (
     <div className="flex min-h-screen flex-col">
       <header className="flex items-center justify-between border-b border-gray-200 px-8 py-4">
-        <span className="font-bold">Beheer</span>
+        <div className="flex items-center gap-6">
+          <span className="font-bold">Beheer</span>
+          <nav className="flex items-center gap-4 text-sm text-gray-600">
+            <Link href="/admin" className="hover:underline">
+              Aanvragen
+            </Link>
+            <Link href="/admin/producten" className="hover:underline">
+              Producten
+            </Link>
+          </nav>
+        </div>
         <div className="flex items-center gap-4">
           <span className="text-sm text-gray-600">Ingelogd als {email}</span>
           <form action={logout}>
