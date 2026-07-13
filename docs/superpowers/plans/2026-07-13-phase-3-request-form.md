@@ -43,7 +43,7 @@
   - `isSpam(honeypot: string): boolean`
   - `sanitizeFileName(name: string): string`
 
-- [ ] **Step 1: Install Vitest**
+- [x] **Step 1: Install Vitest**
 
 ```powershell
 npm install --save-dev vitest
@@ -51,7 +51,7 @@ npm install --save-dev vitest
 
 Expected: `vitest` appears in `package.json` devDependencies, no install errors.
 
-- [ ] **Step 2: Add the test script**
+- [x] **Step 2: Add the test script**
 
 In `package.json`, add to `"scripts"`:
 
@@ -61,7 +61,7 @@ In `package.json`, add to `"scripts"`:
 
 (No `vitest.config.ts` needed: the default include pattern already picks up `lib/**/*.test.ts`, and the module imports its subject relatively — no path alias required.)
 
-- [ ] **Step 3: Write the failing tests**
+- [x] **Step 3: Write the failing tests**
 
 Create `lib/requests/validation.test.ts`:
 
@@ -275,12 +275,12 @@ describe("hasAllowedExtension", () => {
 });
 ```
 
-- [ ] **Step 4: Run the tests to verify they fail**
+- [x] **Step 4: Run the tests to verify they fail**
 
 Run: `npm test`
 Expected: FAIL — cannot resolve `./validation` (the module doesn't exist yet).
 
-- [ ] **Step 5: Write the validation module**
+- [x] **Step 5: Write the validation module**
 
 Create `lib/requests/validation.ts`:
 
@@ -448,17 +448,17 @@ export function sanitizeFileName(name: string): string {
 }
 ```
 
-- [ ] **Step 6: Run the tests to verify they pass**
+- [x] **Step 6: Run the tests to verify they pass**
 
 Run: `npm test`
 Expected: PASS, all tests green.
 
-- [ ] **Step 7: Verify the build**
+- [x] **Step 7: Verify the build**
 
 Run: `npm run build`
 Expected: succeeds, no type errors.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```powershell
 git add package.json package-lock.json lib/requests/validation.ts lib/requests/validation.test.ts
@@ -476,7 +476,7 @@ git commit -m "feat: shared request validation module with Vitest tests"
 - Consumes: tables + `public.is_admin()` from Phase 2 migrations.
 - Produces: private bucket `request-files` (50MB cap); anon INSERT policies on `requests`, `request_files`, and the bucket; anon SELECT on active `products`; one test product. Task 3's inserts and Task 4's uploads/product dropdown only work because of this task.
 
-- [ ] **Step 1: Write the migration file**
+- [x] **Step 1: Write the migration file**
 
 Create `supabase/migrations/0003_request_form.sql`:
 
@@ -534,12 +534,12 @@ create policy "Anon read active products" on public.products
   using (active);
 ```
 
-- [ ] **Step 2: OWNER ACTION — run the migration**
+- [x] **Step 2: OWNER ACTION — run the migration**
 
 Ask the owner to open Supabase → SQL Editor, paste the full contents of `supabase/migrations/0003_request_form.sql`, and run it.
 Expected: "Success. No rows returned".
 
-- [ ] **Step 3: OWNER ACTION — insert a test product**
+- [x] **Step 3: OWNER ACTION — insert a test product**
 
 The catalog form type needs at least one product. Ask the owner to run in the SQL Editor:
 
@@ -551,7 +551,7 @@ returning id, name;
 
 Expected: one row returned with the new product's id. (This is a placeholder; the real catalog content arrives in Phase 6 and this row can then be deleted or deactivated.)
 
-- [ ] **Step 4: Verify policies via anonymous REST calls**
+- [x] **Step 4: Verify policies via anonymous REST calls**
 
 Run:
 
@@ -567,7 +567,7 @@ curl.exe -s -H "apikey: sb_publishable_2v1mWyS0G3FpqseTulIpcw_nRaP_6aQ" "https:/
 
 Expected: `[]` — anon still cannot read requests (insert-only).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add supabase/migrations/0003_request_form.sql
@@ -588,7 +588,7 @@ git commit -m "feat: storage bucket and anon policies for the request form"
 
 No unit tests here: the action is I/O orchestration; all decision logic lives in the already-tested validation module. Verification is the build now and the full form flow in Task 4.
 
-- [ ] **Step 1: Write the server action**
+- [x] **Step 1: Write the server action**
 
 Create `app/aanvraag/actions.ts`:
 
@@ -738,7 +738,7 @@ function parseUploadedFiles(
 }
 ```
 
-- [ ] **Step 2: Write the confirmation page**
+- [x] **Step 2: Write the confirmation page**
 
 Create `app/aanvraag/verzonden/page.tsx`:
 
@@ -761,7 +761,7 @@ export default function RequestSentPage() {
 }
 ```
 
-- [ ] **Step 3: Verify build and tests**
+- [x] **Step 3: Verify build and tests**
 
 Run: `npm run build`
 Expected: succeeds; `/aanvraag/verzonden` listed in the route output.
@@ -769,7 +769,7 @@ Expected: succeeds; `/aanvraag/verzonden` listed in the route output.
 Run: `npm test`
 Expected: still green.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```powershell
 git add app/aanvraag/actions.ts app/aanvraag/verzonden/page.tsx
@@ -789,7 +789,7 @@ git commit -m "feat: request submit action and confirmation page"
 - Consumes: `submitRequest`, `SubmitState`, `UploadedFile` from `./actions` (Task 3); `validateFiles`, `sanitizeFileName`, `MAX_FILES`, `FileMeta` from `@/lib/requests/validation` (Task 1); `createClient` from `@/lib/supabase/client` (browser, Phase 1) and `@/lib/supabase/server` (Phase 1); bucket + policies from Task 2.
 - Produces: the public `/aanvraag` route; `type ProductOption = { id: string; name: string; indicative_price: number | null }` exported from `request-form.tsx`.
 
-- [ ] **Step 1: Write the client form component**
+- [x] **Step 1: Write the client form component**
 
 Create `app/aanvraag/request-form.tsx`:
 
@@ -1074,7 +1074,7 @@ async function uploadFiles(files: File[]): Promise<UploadedFile[]> {
 }
 ```
 
-- [ ] **Step 2: Write the form page**
+- [x] **Step 2: Write the form page**
 
 Create `app/aanvraag/page.tsx`:
 
@@ -1129,7 +1129,7 @@ export default async function RequestPage({
 }
 ```
 
-- [ ] **Step 3: Link the form from the homepage**
+- [x] **Step 3: Link the form from the homepage**
 
 Replace the full contents of `app/page.tsx` with:
 
@@ -1154,7 +1154,7 @@ export default function Home() {
 }
 ```
 
-- [ ] **Step 4: Verify build and tests**
+- [x] **Step 4: Verify build and tests**
 
 Run: `npm run build`
 Expected: succeeds; `/aanvraag` and `/aanvraag/verzonden` in the route output.
@@ -1162,7 +1162,7 @@ Expected: succeeds; `/aanvraag` and `/aanvraag/verzonden` in the route output.
 Run: `npm test`
 Expected: green.
 
-- [ ] **Step 5: Verify the routes respond**
+- [x] **Step 5: Verify the routes respond**
 
 With `npm run dev` running:
 
@@ -1173,7 +1173,7 @@ curl.exe -s -o NUL -w "%{http_code}" http://localhost:3000/aanvraag/verzonden
 
 Expected: `200` for both.
 
-- [ ] **Step 6: OWNER ACTION — full browser checklist (local)**
+- [x] **Step 6: OWNER ACTION — full browser checklist (local)**
 
 Ask the owner, with `npm run dev` running, on `http://localhost:3000`:
 
@@ -1192,7 +1192,7 @@ curl.exe -s -H "apikey: sb_publishable_2v1mWyS0G3FpqseTulIpcw_nRaP_6aQ" "https:/
 
 Expected: `[]`.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```powershell
 git add app/aanvraag/request-form.tsx app/aanvraag/page.tsx app/page.tsx
@@ -1210,17 +1210,17 @@ git commit -m "feat: public request form for all three request types"
 - Consumes: everything above; Vercel auto-deploys pushes to `main`.
 - Produces: Phase 3 live and recorded as done.
 
-- [ ] **Step 1: Push**
+- [x] **Step 1: Push**
 
 ```powershell
 git push
 ```
 
-- [ ] **Step 2: OWNER ACTION — verify on the live site**
+- [x] **Step 2: OWNER ACTION — verify on the live site**
 
 After Vercel finishes deploying (a minute or two), repeat Task 4 Step 6's checklist on `https://3d-print-site-five.vercel.app` (at minimum: one submission per type, one real file upload, the honeypot check, and the `/admin` count). Also confirm `/status` still shows "Database verbonden ✓".
 
-- [ ] **Step 3: Update the roadmap**
+- [x] **Step 3: Update the roadmap**
 
 In `docs/ROADMAP.md`, update the Phase 3 row of the phase table to:
 
@@ -1228,7 +1228,7 @@ In `docs/ROADMAP.md`, update the Phase 3 row of the phase table to:
 | 3 | Request form (all three types) + file upload + license checkbox | done |
 ```
 
-- [ ] **Step 4: Commit and push**
+- [x] **Step 4: Commit and push**
 
 ```powershell
 git add docs/ROADMAP.md
