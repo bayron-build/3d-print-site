@@ -5,8 +5,9 @@ import { createClient } from "@/lib/supabase/client";
 import {
   MAX_FILES,
   sanitizeFileName,
-  validateFiles,
+  validateRequest,
   type FileMeta,
+  type RequestInput,
 } from "@/lib/requests/validation";
 import {
   submitRequest,
@@ -44,11 +45,17 @@ export function RequestForm({
   );
   const [files, setFiles] = useState<File[]>([]);
   const [clientError, setClientError] = useState<string | null>(null);
+  const [clientErrors, setClientErrors] = useState<Record<
+    string,
+    string
+  > | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [, startTransition] = useTransition();
 
   const pending = actionPending || isUploading;
-  const errors = state.errors ?? {};
+  // Client validation errors take precedence: they reflect the latest submit
+  // attempt before the action round-trips.
+  const errors = clientErrors ?? state.errors ?? {};
 
   // Submit is intercepted so uploads can happen BEFORE the server action
   // runs: file bytes go browser → storage, only their metadata rides along
@@ -56,20 +63,38 @@ export function RequestForm({
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setClientError(null);
+    setClientErrors(null);
 
     const formData = new FormData(event.currentTarget);
 
+    // Run the full shared validation client-side BEFORE any upload: a blank
+    // name/email must not orphan uploaded objects (anon has no delete, and
+    // each retry re-uploads under a fresh groupId). Same field coercions the
+    // server action uses.
+    const input: RequestInput = {
+      type: String(formData.get("type") ?? ""),
+      customerName: String(formData.get("customerName") ?? ""),
+      email: String(formData.get("email") ?? ""),
+      phone: String(formData.get("phone") ?? ""),
+      productId: String(formData.get("productId") ?? ""),
+      description: String(formData.get("description") ?? ""),
+      color: String(formData.get("color") ?? ""),
+      material: String(formData.get("material") ?? ""),
+      quantity: String(formData.get("quantity") ?? ""),
+      licenseAccepted: formData.get("licenseAccepted") === "on",
+      files: files.map((file): FileMeta => ({
+        name: file.name,
+        sizeBytes: file.size,
+      })),
+    };
+    const result = validateRequest(input);
+    if (!result.ok) {
+      setClientErrors(result.errors);
+      return;
+    }
+
     let uploaded: UploadedFile[] = [];
     if (type === "file") {
-      // Pre-upload check to fail fast; the server re-validates everything.
-      const fileError = validateFiles(
-        files.map((file): FileMeta => ({ name: file.name, sizeBytes: file.size }))
-      );
-      if (fileError) {
-        setClientError(fileError);
-        return;
-      }
-
       setIsUploading(true);
       try {
         uploaded = await uploadFiles(files);
@@ -164,7 +189,8 @@ export function RequestForm({
       {type === "file" && (
         <div className={labelClass}>
           <span className="text-sm font-medium">
-            Bestanden (max {MAX_FILES}, .stl/.3mf/.step, max 50MB per stuk)
+            Bestanden (max {MAX_FILES}, .stl/.3mf/.step/.stp, max 50MB per
+            stuk)
           </span>
           {/* Deliberately no `name`: the bytes must never end up in the
               FormData the server action receives. */}
@@ -220,16 +246,18 @@ export function RequestForm({
       )}
 
       {type === "file" && (
-        <label className="flex items-start gap-2">
-          <input type="checkbox" name="licenseAccepted" className="mt-1" />
-          <span className="text-sm">
-            Dit is mijn eigen ontwerp, of de licentie staat commercieel
-            printen toe.
-          </span>
-        </label>
-      )}
-      {errors.licenseAccepted && (
-        <p className={errorClass}>{errors.licenseAccepted}</p>
+        <>
+          <label className="flex items-start gap-2">
+            <input type="checkbox" name="licenseAccepted" className="mt-1" />
+            <span className="text-sm">
+              Dit is mijn eigen ontwerp, of de licentie staat commercieel
+              printen toe.
+            </span>
+          </label>
+          {errors.licenseAccepted && (
+            <p className={errorClass}>{errors.licenseAccepted}</p>
+          )}
+        </>
       )}
 
       {clientError && <p className={errorClass}>{clientError}</p>}
