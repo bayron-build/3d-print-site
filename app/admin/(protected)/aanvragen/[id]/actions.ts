@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { validateQuote } from "@/lib/requests/admin-validation";
+import { sendStatusEmail } from "@/lib/email/notifications";
 
 export type UpdateState = { errors: Record<string, string> | null; ok: boolean };
 
@@ -32,6 +33,16 @@ export async function updateRequest(
   }
 
   const supabase = await createClient();
+  // Read the row first: the notification needs the customer's email and
+  // access token, and the old status ensures we email only on an actual
+  // change — re-saving notes while status stays 'quoted' must not re-send
+  // the quote email.
+  const { data: existing } = await supabase
+    .from("requests")
+    .select("status, email, customer_name, access_token")
+    .eq("id", requestId)
+    .maybeSingle();
+
   // RLS restricts UPDATE to the admin; a non-admin session cannot reach here.
   const { error } = await supabase
     .from("requests")
@@ -45,6 +56,22 @@ export async function updateRequest(
 
   if (error) {
     return { errors: { form: GENERIC_ERROR }, ok: false };
+  }
+
+  // Phase 5: notify the customer on a real status change. sendStatusEmail is
+  // a no-op for statuses that don't email and never throws — a Resend outage
+  // cannot fail the admin's save.
+  if (existing && existing.status !== result.data.status) {
+    await sendStatusEmail(
+      {
+        email: existing.email,
+        customer_name: existing.customer_name,
+        access_token: existing.access_token,
+        quote_design_fee: result.data.designFee,
+        quote_print_fee: result.data.printFee,
+      },
+      result.data.status
+    );
   }
 
   revalidatePath("/admin");
