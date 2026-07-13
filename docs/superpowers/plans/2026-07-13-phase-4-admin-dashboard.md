@@ -49,7 +49,7 @@
   - `STATUS_BADGE_CLASSES: Record<RequestStatus, string>` (Tailwind classes)
   - `isRequestStatus(value: string): value is RequestStatus`
 
-- [ ] **Step 1: Create the module**
+- [x] **Step 1: Create the module**
 
 Create `lib/requests/status.ts`:
 
@@ -94,12 +94,12 @@ export function isRequestStatus(value: string): value is RequestStatus {
 }
 ```
 
-- [ ] **Step 2: Verify it compiles**
+- [x] **Step 2: Verify it compiles**
 
 Run: `npm run build`
 Expected: build passes (module is imported nowhere yet, but must type-check).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add lib/requests/status.ts
@@ -123,7 +123,7 @@ git commit -m "feat: request status labels and badge styles"
   - `parseFee(raw: string): { ok: true; value: number | null } | { ok: false }`
   - `validateQuote(input: QuoteInput): QuoteValidationResult`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `lib/requests/admin-validation.test.ts`:
 
@@ -225,12 +225,12 @@ describe("validateQuote", () => {
 });
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `npm test`
 Expected: FAIL — `admin-validation.ts` does not exist / exports missing.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `lib/requests/admin-validation.ts`:
 
@@ -313,12 +313,12 @@ export function validateQuote(input: QuoteInput): QuoteValidationResult {
 }
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `npm test`
 Expected: PASS — all `parseFee` and `validateQuote` tests green, plus Phase 3's existing tests still green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/requests/admin-validation.ts lib/requests/admin-validation.test.ts
@@ -336,7 +336,7 @@ git commit -m "feat: quote validation module with fee parsing tests"
 - Consumes: `REQUEST_STATUSES`, `STATUS_LABELS`, `STATUS_BADGE_CLASSES`, `isRequestStatus` from `@/lib/requests/status`; `createClient` from `@/lib/supabase/server`.
 - Produces: the `/admin` list; links to `/admin/aanvragen/[id]` (Task 4).
 
-- [ ] **Step 1: Rewrite the dashboard page**
+- [x] **Step 1: Rewrite the dashboard page**
 
 Replace the entire contents of `app/admin/(protected)/page.tsx`:
 
@@ -490,12 +490,12 @@ function StatusBadge({ status }: { status: RequestStatus }) {
 }
 ```
 
-- [ ] **Step 2: Verify the build**
+- [x] **Step 2: Verify the build**
 
 Run: `npm run build`
 Expected: build passes (the `/admin/aanvragen/[id]` link target arrives in Task 4; Next does not fail the build on links to not-yet-existing routes).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add "app/admin/(protected)/page.tsx"
@@ -515,7 +515,7 @@ git commit -m "feat: admin request list with status filter"
 
 > **Note on task order:** this page imports `QuoteForm` (Task 5) and `DeleteButton` (Task 6). Implement it here with those two imports, then create the components in Tasks 5–6. The build step below is deferred to the end of Task 6; verify only after all three exist. If you prefer a green build at every task, temporarily stub the two imports with `<p>` placeholders and replace them in Tasks 5–6.
 
-- [ ] **Step 1: Create the detail page**
+- [x] **Step 1: Create the detail page**
 
 Create `app/admin/(protected)/aanvragen/[id]/page.tsx`:
 
@@ -736,7 +736,7 @@ export default async function RequestDetailPage({
 }
 ```
 
-- [ ] **Step 2: Proceed to Task 5** (build verification happens after Task 6, once `quote-form.tsx` and `delete-button.tsx` exist). Do not commit yet — Task 6 commits the detail page together with the components once the build is green. (If you stubbed the imports for a green build, you may commit the page now and re-commit in Task 6.)
+- [x] **Step 2: Proceed to Task 5** (build verification happens after Task 6, once `quote-form.tsx` and `delete-button.tsx` exist). Do not commit yet — Task 6 commits the detail page together with the components once the build is green. (If you stubbed the imports for a green build, you may commit the page now and re-commit in Task 6.)
 
 ---
 
@@ -752,7 +752,7 @@ export default async function RequestDetailPage({
   - `updateRequest(prevState: UpdateState, formData: FormData): Promise<UpdateState>` where `type UpdateState = { errors: Record<string, string> | null; ok: boolean }`
   - `<QuoteForm requestId designFee printFee status notes />` (props typed below).
 
-- [ ] **Step 1: Create the update action**
+- [x] **Step 1: Create the update action**
 
 Create `app/admin/(protected)/aanvragen/[id]/actions.ts`:
 
@@ -811,7 +811,7 @@ export async function updateRequest(
 }
 ```
 
-- [ ] **Step 2: Create the quote form component**
+- [x] **Step 2: Create the quote form component**
 
 Create `app/admin/(protected)/aanvragen/[id]/quote-form.tsx`:
 
@@ -933,7 +933,7 @@ export function QuoteForm({
 }
 ```
 
-- [ ] **Step 3: Proceed to Task 6** (build verification and commit happen at the end of Task 6, when the delete pieces complete the detail page).
+- [x] **Step 3: Proceed to Task 6** (build verification and commit happen at the end of Task 6, when the delete pieces complete the detail page).
 
 ---
 
@@ -949,7 +949,7 @@ export function QuoteForm({
   - `deleteRequest(formData: FormData): Promise<void>` (form action; redirects on success, returns nothing)
   - `<DeleteButton requestId={string} />`
 
-- [ ] **Step 1: Add the delete action**
+- [x] **Step 1: Add the delete action**
 
 Append to `app/admin/(protected)/aanvragen/[id]/actions.ts` (add `redirect` to the imports at the top):
 
@@ -1002,7 +1002,7 @@ export async function deleteRequest(formData: FormData): Promise<void> {
 }
 ```
 
-- [ ] **Step 2: Create the delete button component**
+- [x] **Step 2: Create the delete button component**
 
 Create `app/admin/(protected)/aanvragen/[id]/delete-button.tsx`:
 
@@ -1051,7 +1051,7 @@ export function DeleteButton({ requestId }: { requestId: string }) {
 }
 ```
 
-- [ ] **Step 3: Verify the whole feature builds and tests pass**
+- [x] **Step 3: Verify the whole feature builds and tests pass**
 
 Run: `npm run build`
 Expected: PASS — the detail page (Task 4) now resolves both `QuoteForm` and `DeleteButton`.
@@ -1059,7 +1059,7 @@ Expected: PASS — the detail page (Task 4) now resolves both `QuoteForm` and `D
 Run: `npm test`
 Expected: PASS — all Phase 3 + Phase 4 validation tests green.
 
-- [ ] **Step 4: Commit the detail feature**
+- [x] **Step 4: Commit the detail feature**
 
 ```bash
 git add "app/admin/(protected)/aanvragen"
