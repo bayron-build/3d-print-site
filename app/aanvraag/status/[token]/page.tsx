@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { formatEuro } from "@/lib/email/templates";
+import { formatEuro } from "@/lib/format";
 import { STATUS_LABELS, type RequestStatus } from "@/lib/requests/status";
 import { AkkoordButton } from "./akkoord-button";
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState, useTransition } from "react";
+import { formatEuro } from "@/lib/format";
 import { createClient } from "@/lib/supabase/client";
 import {
   MAX_FILES,
@@ -178,7 +179,7 @@ export function RequestForm({
               <option key={product.id} value={product.id}>
                 {product.name}
                 {product.indicative_price !== null &&
-                  ` (richtprijs €${product.indicative_price})`}
+                  ` (richtprijs ${formatEuro(product.indicative_price)})`}
               </option>
             ))}
           </select>

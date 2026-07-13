@@ -2,18 +2,10 @@
 // so each is unit-testable. Callers supply the absolute status-page URL;
 // lib/email/notifications.ts builds it and hands the result to the transport.
 
+import { formatEuro } from "@/lib/format";
 import type { RequestStatus } from "@/lib/requests/status";
 
 export type EmailContent = { subject: string; html: string };
-
-// € 1.234,56 — Dutch grouping and comma decimals. Accepts the string form
-// Postgres numeric columns may arrive in.
-export function formatEuro(value: number | string): string {
-  const amount = typeof value === "string" ? Number.parseFloat(value) : value;
-  const [whole, decimals] = amount.toFixed(2).split(".");
-  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  return `€ ${grouped},${decimals}`;
-}
 
 // Customer names end up inside HTML; neutralise markup no matter what was
 // typed into the form.
