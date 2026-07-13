@@ -1,5 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
-import { RequestForm, type ProductOption } from "./request-form";
+import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
+import { RequestForm, type FormType, type ProductOption } from "./request-form";
+
+export const metadata = { title: "Aanvraag indienen" };
 
 export default async function RequestPage({
   searchParams,
@@ -7,7 +11,7 @@ export default async function RequestPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   // Next 16: searchParams is a Promise and must be awaited.
-  const { product } = await searchParams;
+  const { product, type } = await searchParams;
   const supabase = await createClient();
 
   // RLS already limits anon to active products; the explicit filter keeps
@@ -25,24 +29,32 @@ export default async function RequestPage({
     productList.some((option) => option.id === product)
       ? product
       : "";
+  // Unknown ?type= value: silently ignore, same posture as ?product=.
+  const initialType: FormType | "" =
+    type === "catalog" || type === "file" || type === "custom" ? type : "";
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-6 p-8">
-      <h1 className="text-3xl font-bold">Aanvraag indienen</h1>
-      <p className="text-gray-600">
-        Vertel ons wat je wilt laten printen. Je ontvangt per e-mail een
-        prijsvoorstel — je betaalt pas na akkoord.
-      </p>
-      {error ? (
-        <p className="text-red-700">
-          Kon het formulier niet laden, probeer het later opnieuw.
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader />
+      <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 p-8">
+        <h1 className="text-3xl font-bold">Aanvraag indienen</h1>
+        <p className="text-gray-600">
+          Vertel ons wat je wilt laten printen. Je ontvangt per e-mail een
+          prijsvoorstel — je betaalt pas na akkoord.
         </p>
-      ) : (
-        <RequestForm
-          products={productList}
-          preselectedProductId={preselected}
-        />
-      )}
-    </main>
+        {error ? (
+          <p className="text-red-700">
+            Kon het formulier niet laden, probeer het later opnieuw.
+          </p>
+        ) : (
+          <RequestForm
+            products={productList}
+            preselectedProductId={preselected}
+            initialType={initialType}
+          />
+        )}
+      </main>
+      <SiteFooter />
+    </div>
   );
 }

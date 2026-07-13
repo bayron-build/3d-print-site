@@ -22,7 +22,7 @@ export type ProductOption = {
   indicative_price: number | null;
 };
 
-type FormType = "catalog" | "file" | "custom";
+export type FormType = "catalog" | "file" | "custom";
 
 const initialState: SubmitState = { errors: null };
 
@@ -33,16 +33,19 @@ const errorClass = "text-sm text-red-700";
 export function RequestForm({
   products,
   preselectedProductId,
+  initialType,
 }: {
   products: ProductOption[];
   preselectedProductId: string;
+  initialType: FormType | "";
 }) {
   const [state, formAction, actionPending] = useActionState(
     submitRequest,
     initialState
   );
+  // ?product= implies catalog and wins over ?type=; default stays "file".
   const [type, setType] = useState<FormType>(
-    preselectedProductId ? "catalog" : "file"
+    preselectedProductId ? "catalog" : initialType || "file"
   );
   const [files, setFiles] = useState<File[]>([]);
   const [clientError, setClientError] = useState<string | null>(null);
