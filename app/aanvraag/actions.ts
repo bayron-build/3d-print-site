@@ -102,8 +102,9 @@ export async function submitRequest(
     }
   }
 
-  // Fire-and-forget by contract: sendConfirmationEmail never throws, so a
-  // Resend outage cannot fail a submission that is already in the database.
+  // Awaited (serverless can kill work after the response), but failure-proof:
+  // sendConfirmationEmail never throws, so a Resend outage cannot fail a
+  // submission that is already in the database.
   await sendConfirmationEmail({
     to: result.data.email,
     customerName: result.data.customerName,
