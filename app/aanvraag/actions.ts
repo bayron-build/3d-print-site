@@ -7,6 +7,7 @@ import {
   validateRequest,
   type FileMeta,
 } from "@/lib/requests/validation";
+import { sendConfirmationEmail } from "@/lib/email/notifications";
 
 export type SubmitState = { errors: Record<string, string> | null };
 
@@ -62,11 +63,15 @@ export async function submitRequest(
 
   // Generate the id here instead of reading it back from the insert:
   // PostgREST only returns inserted rows to callers with SELECT permission,
-  // and anonymous visitors must never be able to read requests.
+  // and anonymous visitors must never be able to read requests. The access
+  // token follows the same rule — it must go into the confirmation email,
+  // and the inserted row can never be read back.
   const requestId = crypto.randomUUID();
+  const accessToken = crypto.randomUUID();
 
   const { error: requestError } = await supabase.from("requests").insert({
     id: requestId,
+    access_token: accessToken,
     type: result.data.type,
     product_id: result.data.productId,
     customer_name: result.data.customerName,
@@ -96,6 +101,14 @@ export async function submitRequest(
       return { errors: { form: GENERIC_ERROR } };
     }
   }
+
+  // Fire-and-forget by contract: sendConfirmationEmail never throws, so a
+  // Resend outage cannot fail a submission that is already in the database.
+  await sendConfirmationEmail({
+    to: result.data.email,
+    customerName: result.data.customerName,
+    accessToken,
+  });
 
   redirect("/aanvraag/verzonden");
 }
