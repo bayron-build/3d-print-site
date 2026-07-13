@@ -96,3 +96,74 @@ export async function updateProduct(
   revalidateProductPaths(productId);
   return { errors: null, ok: true };
 }
+
+export type PhotoActionResult = { ok: boolean; message?: string };
+
+// The bytes went browser → storage already (10MB photos cannot ride through
+// a server action); this only records the path on the product row.
+export async function addProductPhoto(
+  productId: string,
+  path: string
+): Promise<PhotoActionResult> {
+  // The path must live under this product's folder — reject anything else.
+  if (!path.startsWith(`${productId}/`)) {
+    return { ok: false, message: GENERIC_ERROR };
+  }
+
+  const supabase = await createClient();
+  const { data: product, error: readError } = await supabase
+    .from("products")
+    .select("photos")
+    .eq("id", productId)
+    .maybeSingle();
+  if (readError || !product) {
+    return { ok: false, message: GENERIC_ERROR };
+  }
+
+  const { error } = await supabase
+    .from("products")
+    .update({ photos: [...product.photos, path] })
+    .eq("id", productId);
+  if (error) {
+    return { ok: false, message: GENERIC_ERROR };
+  }
+
+  revalidateProductPaths(productId);
+  return { ok: true };
+}
+
+// Storage object first, then the array entry: a failed storage delete
+// leaves the photo visible (retryable) instead of orphaned-but-invisible.
+export async function deleteProductPhoto(
+  productId: string,
+  path: string
+): Promise<PhotoActionResult> {
+  const supabase = await createClient();
+
+  const { error: storageError } = await supabase.storage
+    .from("product-photos")
+    .remove([path]);
+  if (storageError) {
+    return { ok: false, message: "Kon de foto niet verwijderen." };
+  }
+
+  const { data: product, error: readError } = await supabase
+    .from("products")
+    .select("photos")
+    .eq("id", productId)
+    .maybeSingle();
+  if (readError || !product) {
+    return { ok: false, message: GENERIC_ERROR };
+  }
+
+  const { error } = await supabase
+    .from("products")
+    .update({ photos: product.photos.filter((p: string) => p !== path) })
+    .eq("id", productId);
+  if (error) {
+    return { ok: false, message: GENERIC_ERROR };
+  }
+
+  revalidateProductPaths(productId);
+  return { ok: true };
+}

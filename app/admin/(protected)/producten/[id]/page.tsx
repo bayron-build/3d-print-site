@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { priceToInput } from "@/lib/products/validation";
 import { updateProduct } from "../actions";
 import { ProductForm } from "../product-form";
+import { PhotoManager } from "./photo-manager";
 
 export default async function EditProductPage({
   params,
@@ -33,7 +34,8 @@ export default async function EditProductPage({
         }}
         submitLabel="Opslaan"
       />
-      {/* PhotoManager (Task 12) and DeleteProductButton (Task 13) mount here. */}
+      <PhotoManager productId={product.id} photos={product.photos} />
+      {/* DeleteProductButton (Task 13) mounts here. */}
     </div>
   );
 }
