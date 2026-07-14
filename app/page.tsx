@@ -95,7 +95,7 @@ export default async function Home() {
               src={heroPrinter}
               alt="3D-printer die een paarse vaas print"
               priority
-              className="hidden rounded-2xl lg:block"
+              className="hidden lg:block [mask-image:radial-gradient(ellipse_55%_55%_at_center,#000_50%,transparent_97%)]"
             />
           </div>
         </section>
