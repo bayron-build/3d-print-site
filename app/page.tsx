@@ -15,7 +15,7 @@ import {
   IconTruck,
 } from "@/components/ui/icons";
 import dragon from "@/public/images/dragon.jpg";
-import heroPrinter from "@/public/images/hero-printer-violet.jpg";
+import heroPrinter from "@/public/images/hero-printer-dark.jpg";
 
 // Matches the real pipeline: manual quote by email, Akkoord on the status
 // page, pickup with bank transfer/Tikkie.
@@ -47,24 +47,36 @@ export default async function Home() {
       <SiteHeader />
 
       <main className="flex-1">
-        {/* Compact hero: with how-it-works below it, both fit the first
-            screen and the models band peeks in at the bottom (spec). Deep
-            violet band — colored, not black — so the page opens with weight
-            without harsh white-on-black contrast. */}
-        <section className="bg-gradient-to-b from-violet-950 to-slate-950">
-          <div className="mx-auto grid w-full max-w-[88rem] items-center gap-10 px-6 py-10 lg:grid-cols-[1.1fr_0.9fr] lg:py-12">
-            <div className="flex flex-col gap-5">
-              <h1 className="text-4xl font-bold text-violet-50 sm:text-5xl">
+        {/* Full-bleed hero (mockup layout): the photo IS the section
+            background — its dark left side carries the text, a gradient
+            overlay keeps it readable, and the dark header above melts into
+            it. No framed image, no visible photo edge. */}
+        <section className="relative overflow-hidden bg-slate-950">
+          <Image
+            src={heroPrinter}
+            alt="3D-printer print een paars raster in het donker"
+            priority
+            fill
+            sizes="100vw"
+            className="object-cover object-[70%_72%]"
+          />
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-gradient-to-r from-slate-950 from-10% via-slate-950/70 to-slate-950/15"
+          />
+          <div className="relative mx-auto w-full max-w-[88rem] px-6 py-14 lg:py-24">
+            <div className="flex max-w-2xl flex-col gap-5">
+              <h1 className="text-4xl font-bold text-white sm:text-5xl">
                 Iets nodig in{" "}
-                <span className="text-violet-300">3D print</span>?
+                <span className="text-violet-400">3D print</span>?
               </h1>
-              <p className="max-w-xl text-lg text-violet-200">
+              <p className="max-w-xl text-lg text-slate-300">
                 Upload je eigen bestand, vraag een custom ontwerp aan of kies
                 uit kant-en-klare modellen. Hoge kwaliteit, snel geregeld,
                 lokaal gemaakt.
               </p>
               <div className="flex flex-wrap gap-3">
-                <ButtonLink href="/aanvraag?type=file" variant="inverse" size="lg">
+                <ButtonLink href="/aanvraag?type=file" size="lg">
                   Upload je bestand
                 </ButtonLink>
                 <ButtonLink
@@ -78,25 +90,19 @@ export default async function Home() {
               <ul className="mt-1 flex flex-wrap gap-x-8 gap-y-3">
                 {TRUST_BADGES.map(([title, sub, Icon]) => (
                   <li key={title} className="flex items-center gap-2.5">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-violet-200">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-violet-300">
                       <Icon className="h-5 w-5" />
                     </span>
                     <span className="flex flex-col leading-tight">
                       <span className="text-sm font-semibold text-white">
                         {title}
                       </span>
-                      <span className="text-xs text-violet-300">{sub}</span>
+                      <span className="text-xs text-slate-400">{sub}</span>
                     </span>
                   </li>
                 ))}
               </ul>
             </div>
-            <Image
-              src={heroPrinter}
-              alt="3D-printer die een paarse vaas print"
-              priority
-              className="hidden lg:block [mask-image:radial-gradient(ellipse_55%_55%_at_center,#000_50%,transparent_97%)]"
-            />
           </div>
         </section>
 

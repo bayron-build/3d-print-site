@@ -20,27 +20,28 @@ export function CubeLogo({ className }: { className?: string }) {
   );
 }
 
-// Public-site header. Light-only since the redesign; mobile shows logo + CTA
-// (no hamburger menu in v1).
+// Public-site header. Dark (mockup): on the homepage it melts into the
+// full-bleed hero; on light pages it bookends with the dark footer. Mobile
+// shows logo + CTA (no hamburger menu in v1).
 export function SiteHeader() {
   return (
-    <header className="border-b border-slate-200 bg-white">
+    <header className="border-b border-slate-800 bg-slate-950">
       <div className="mx-auto flex w-full max-w-[88rem] items-center justify-between gap-4 px-6 py-4">
         <Link href="/" className="flex items-center gap-2">
-          <CubeLogo className="h-8 w-8 text-violet-600" />
+          <CubeLogo className="h-8 w-8 text-violet-400" />
           <span className="flex flex-col leading-tight">
-            <span className="font-bold text-slate-900">{SITE_NAME}</span>
-            <span className="text-xs text-slate-500">{SITE_BYLINE}</span>
+            <span className="font-bold text-white">{SITE_NAME}</span>
+            <span className="text-xs text-slate-400">{SITE_BYLINE}</span>
           </span>
         </Link>
-        <nav className="hidden items-center gap-6 text-sm text-slate-600 sm:flex">
-          <Link href="/modellen" className="hover:text-violet-700">
+        <nav className="hidden items-center gap-6 text-sm text-slate-300 sm:flex">
+          <Link href="/modellen" className="hover:text-violet-300">
             Modellen
           </Link>
-          <Link href="/#hoe-het-werkt" className="hover:text-violet-700">
+          <Link href="/#hoe-het-werkt" className="hover:text-violet-300">
             Hoe het werkt
           </Link>
-          <Link href="/#contact" className="hover:text-violet-700">
+          <Link href="/#contact" className="hover:text-violet-300">
             Contact
           </Link>
         </nav>
