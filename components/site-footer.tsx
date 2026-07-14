@@ -9,7 +9,7 @@ import { SITE_BYLINE, SITE_EMAIL, SITE_NAME, SITE_TAGLINE } from "@/lib/site";
 export function SiteFooter() {
   return (
     <footer id="contact" className="border-t border-slate-800 bg-slate-900">
-      <div className="mx-auto grid w-full max-w-7xl gap-10 px-6 py-12 sm:grid-cols-3">
+      <div className="mx-auto grid w-full max-w-[88rem] gap-10 px-6 py-12 sm:grid-cols-3">
         <div className="flex max-w-xs flex-col gap-3">
           <span className="flex items-center gap-2">
             <CubeLogo className="h-7 w-7 text-violet-400" />

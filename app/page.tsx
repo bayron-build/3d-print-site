@@ -51,8 +51,8 @@ export default async function Home() {
             screen and the models band peeks in at the bottom (spec). Deep
             violet band — colored, not black — so the page opens with weight
             without harsh white-on-black contrast. */}
-        <section className="bg-gradient-to-b from-violet-800 to-violet-950">
-          <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-6 py-10 lg:grid-cols-[1.1fr_0.9fr] lg:py-12">
+        <section className="bg-gradient-to-b from-violet-950 to-slate-950">
+          <div className="mx-auto grid w-full max-w-[88rem] items-center gap-10 px-6 py-10 lg:grid-cols-[1.1fr_0.9fr] lg:py-12">
             <div className="flex flex-col gap-5">
               <h1 className="text-4xl font-bold text-violet-50 sm:text-5xl">
                 Iets nodig in{" "}
@@ -95,13 +95,13 @@ export default async function Home() {
               src={heroPrinter}
               alt="3D-printer die een vaas print"
               priority
-              className="hidden rounded-2xl shadow-lg ring-1 ring-white/15 lg:block"
+              className="hidden rounded-2xl lg:block"
             />
           </div>
         </section>
 
         {/* How it works + custom-idea card in one band (mockup layout). */}
-        <section id="hoe-het-werkt" className="mx-auto w-full max-w-7xl px-6 py-10">
+        <section id="hoe-het-werkt" className="mx-auto w-full max-w-[88rem] px-6 py-10">
           <div className="grid items-start gap-8 lg:grid-cols-[1.4fr_1fr]">
             <div>
               <SectionHeading
@@ -148,7 +148,7 @@ export default async function Home() {
 
         {/* Models band starts at the bottom edge of the first screen. */}
         <section className="border-t border-violet-100 bg-violet-50">
-          <div className="mx-auto w-full max-w-7xl px-6 py-10">
+          <div className="mx-auto w-full max-w-[88rem] px-6 py-10">
             <div className="flex items-end justify-between gap-4">
               <SectionHeading eyebrow="Modellen" title="Klaar om te printen." />
               <Link

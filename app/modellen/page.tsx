@@ -22,7 +22,7 @@ export default async function ModelsPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
-      <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-10">
+      <main className="mx-auto w-full max-w-[88rem] flex-1 px-6 py-10">
         <h1 className="text-3xl font-bold text-slate-900">Modellen</h1>
         <p className="mt-2 max-w-xl text-slate-600">
           Kant-en-klare ontwerpen, geprint op bestelling. De richtprijs is een

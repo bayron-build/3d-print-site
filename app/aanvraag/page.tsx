@@ -44,7 +44,7 @@ export default async function RequestPage({
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
-      <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-10">
+      <main className="mx-auto w-full max-w-[88rem] flex-1 px-6 py-10">
         <div className="max-w-2xl">
           <h1 className="text-3xl font-bold text-slate-900">
             Aanvraag indienen
