@@ -23,14 +23,24 @@ export const STATUS_LABELS: Record<RequestStatus, string> = {
 };
 
 // Badge colours per status: neutral for new, blue while in progress, green
-// for done, red for rejected.
+// for done, red for rejected. Violet marks the customer's "akkoord" moment.
 export const STATUS_BADGE_CLASSES: Record<RequestStatus, string> = {
-  received: "bg-gray-100 text-gray-800",
+  received: "bg-slate-100 text-slate-800",
   quoted: "bg-blue-100 text-blue-800",
-  approved: "bg-indigo-100 text-indigo-800",
+  approved: "bg-violet-100 text-violet-800",
   printing: "bg-amber-100 text-amber-800",
   done: "bg-green-100 text-green-800",
   rejected: "bg-red-100 text-red-800",
+};
+
+// Solid dot variant of the same scheme, for the admin dashboard filter cards.
+export const STATUS_DOT_CLASSES: Record<RequestStatus, string> = {
+  received: "bg-slate-400",
+  quoted: "bg-blue-500",
+  approved: "bg-violet-500",
+  printing: "bg-amber-500",
+  done: "bg-green-500",
+  rejected: "bg-red-500",
 };
 
 export function isRequestStatus(value: string): value is RequestStatus {

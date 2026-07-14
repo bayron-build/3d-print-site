@@ -8,3 +8,10 @@ export function formatEuro(value: number | string): string {
   const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   return `€ ${grouped},${decimals}`;
 }
+
+// File sizes shown to users: MB with one decimal above 1MB, otherwise KB.
+export function formatFileSize(bytes: number): string {
+  const mb = bytes / (1024 * 1024);
+  if (mb >= 1) return `${mb.toFixed(1)} MB`;
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+}

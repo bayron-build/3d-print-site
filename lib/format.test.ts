@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatEuro } from "./format";
+import { formatEuro, formatFileSize } from "./format";
 
 describe("formatEuro", () => {
   it("formats numbers Dutch-style with two decimals", () => {
@@ -14,5 +14,15 @@ describe("formatEuro", () => {
 
   it("groups thousands with a dot", () => {
     expect(formatEuro(1234.5)).toBe("€ 1.234,50");
+  });
+});
+
+describe("formatFileSize", () => {
+  it("formats megabytes with one decimal", () => {
+    expect(formatFileSize(2.5 * 1024 * 1024)).toBe("2.5 MB");
+  });
+  it("formats sub-MB sizes as KB, minimum 1", () => {
+    expect(formatFileSize(512 * 1024)).toBe("512 KB");
+    expect(formatFileSize(10)).toBe("1 KB");
   });
 });
