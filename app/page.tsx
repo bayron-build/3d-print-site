@@ -48,26 +48,28 @@ export default async function Home() {
 
       <main className="flex-1">
         {/* Compact hero: with how-it-works below it, both fit the first
-            screen and the models band peeks in at the bottom (spec). */}
-        <section className="bg-gradient-to-b from-violet-50 to-white">
+            screen and the models band peeks in at the bottom (spec). Deep
+            violet band — colored, not black — so the page opens with weight
+            without harsh white-on-black contrast. */}
+        <section className="bg-gradient-to-b from-violet-800 to-violet-950">
           <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-6 py-10 lg:grid-cols-[1.1fr_0.9fr] lg:py-12">
             <div className="flex flex-col gap-5">
-              <h1 className="text-4xl font-bold text-slate-900 sm:text-5xl">
+              <h1 className="text-4xl font-bold text-violet-50 sm:text-5xl">
                 Iets nodig in{" "}
-                <span className="text-violet-600">3D print</span>?
+                <span className="text-violet-300">3D print</span>?
               </h1>
-              <p className="max-w-xl text-lg text-slate-600">
+              <p className="max-w-xl text-lg text-violet-200">
                 Upload je eigen bestand, vraag een custom ontwerp aan of kies
                 uit kant-en-klare modellen. Hoge kwaliteit, snel geregeld,
                 lokaal gemaakt.
               </p>
               <div className="flex flex-wrap gap-3">
-                <ButtonLink href="/aanvraag?type=file" size="lg">
+                <ButtonLink href="/aanvraag?type=file" variant="inverse" size="lg">
                   Upload je bestand
                 </ButtonLink>
                 <ButtonLink
                   href="/aanvraag?type=custom"
-                  variant="secondary"
+                  variant="inverse-outline"
                   size="lg"
                 >
                   Custom ontwerp aanvragen
@@ -76,14 +78,14 @@ export default async function Home() {
               <ul className="mt-1 flex flex-wrap gap-x-8 gap-y-3">
                 {TRUST_BADGES.map(([title, sub, Icon]) => (
                   <li key={title} className="flex items-center gap-2.5">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-violet-100 text-violet-700">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-violet-200">
                       <Icon className="h-5 w-5" />
                     </span>
                     <span className="flex flex-col leading-tight">
-                      <span className="text-sm font-semibold text-slate-900">
+                      <span className="text-sm font-semibold text-white">
                         {title}
                       </span>
-                      <span className="text-xs text-slate-500">{sub}</span>
+                      <span className="text-xs text-violet-300">{sub}</span>
                     </span>
                   </li>
                 ))}
@@ -93,7 +95,7 @@ export default async function Home() {
               src={heroPrinter}
               alt="3D-printer die een vaas print"
               priority
-              className="hidden rounded-2xl shadow-lg lg:block"
+              className="hidden rounded-2xl shadow-lg ring-1 ring-white/15 lg:block"
             />
           </div>
         </section>
@@ -145,7 +147,7 @@ export default async function Home() {
         </section>
 
         {/* Models band starts at the bottom edge of the first screen. */}
-        <section className="border-t border-slate-100 bg-slate-50">
+        <section className="border-t border-violet-100 bg-violet-50">
           <div className="mx-auto w-full max-w-7xl px-6 py-10">
             <div className="flex items-end justify-between gap-4">
               <SectionHeading eyebrow="Modellen" title="Klaar om te printen." />
