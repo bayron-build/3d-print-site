@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/supabase/auth";
+import { CubeLogo } from "@/components/site-header";
+import { Button } from "@/components/ui/button";
+import { AdminNav } from "./admin-nav";
 import { logout } from "./actions";
 
 // Server-side gate for every admin page. The (protected) route group keeps
@@ -16,32 +19,29 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="flex items-center justify-between border-b border-gray-200 px-8 py-4">
-        <div className="flex items-center gap-6">
-          <span className="font-bold">Beheer</span>
-          <nav className="flex items-center gap-4 text-sm text-gray-600">
-            <Link href="/admin" className="hover:underline">
-              Aanvragen
+    <div className="flex min-h-screen flex-col bg-slate-50">
+      <header className="border-b border-slate-200 bg-white">
+        <div className="flex items-center justify-between gap-4 px-6 py-3">
+          <div className="flex items-center gap-6">
+            <Link href="/admin" className="flex items-center gap-2">
+              <CubeLogo className="h-7 w-7 text-violet-600" />
+              <span className="font-bold text-slate-900">Beheer</span>
             </Link>
-            <Link href="/admin/producten" className="hover:underline">
-              Producten
-            </Link>
-          </nav>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600">Ingelogd als {email}</span>
-          <form action={logout}>
-            <button
-              type="submit"
-              className="rounded border border-gray-300 px-3 py-1 text-sm"
-            >
-              Uitloggen
-            </button>
-          </form>
+            <AdminNav />
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="hidden text-sm text-slate-500 sm:inline">
+              {email}
+            </span>
+            <form action={logout}>
+              <Button type="submit" variant="secondary" size="sm">
+                Uitloggen
+              </Button>
+            </form>
+          </div>
         </div>
       </header>
-      <main className="flex-1 p-8">{children}</main>
+      <main className="flex-1 p-6 sm:p-8">{children}</main>
     </div>
   );
 }
