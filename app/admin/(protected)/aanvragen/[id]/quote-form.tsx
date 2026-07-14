@@ -88,7 +88,7 @@ export function QuoteForm({
       </div>
 
       {hasTotal && (
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-slate-600 dark:text-slate-300">
           Totaal: € {total.toFixed(2).replace(".", ",")}
         </p>
       )}
@@ -107,8 +107,8 @@ export function QuoteForm({
         <Textarea name="notes" rows={3} defaultValue={notes ?? ""} />
       </Field>
 
-      {errors.form && <p className="text-sm text-red-600">{errors.form}</p>}
-      {state.ok && <p className="text-sm text-green-700">Opgeslagen.</p>}
+      {errors.form && <p className="text-sm text-red-600 dark:text-red-400">{errors.form}</p>}
+      {state.ok && <p className="text-sm text-green-700 dark:text-green-400">Opgeslagen.</p>}
 
       <Button type="submit" disabled={pending} className="self-start">
         {pending ? "Bezig met opslaan…" : "Opslaan"}

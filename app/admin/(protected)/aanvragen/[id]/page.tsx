@@ -49,7 +49,7 @@ export default async function RequestDetailPage({
 
   if (error) {
     return (
-      <p className="text-red-700">
+      <p className="text-red-700 dark:text-red-400">
         Kon de aanvraag niet laden: {error.message}
       </p>
     );
@@ -91,64 +91,64 @@ export default async function RequestDetailPage({
 
   return (
     <div className="max-w-3xl">
-      <Link href="/admin" className="text-sm text-violet-700 hover:underline">
+      <Link href="/admin" className="text-sm text-violet-700 hover:underline dark:text-violet-400">
         ← Terug naar overzicht
       </Link>
 
       <div className="mt-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">{request.customer_name}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{request.customer_name}</h1>
         <StatusBadge status={request.status as RequestStatus} />
       </div>
 
       <Card className="mt-6">
         <dl className="grid grid-cols-[8rem_1fr] gap-y-2 text-sm">
-          <dt className="text-slate-600">Type</dt>
+          <dt className="text-slate-600 dark:text-slate-300">Type</dt>
           <dd>{TYPE_LABELS[request.type] ?? request.type}</dd>
 
-          <dt className="text-slate-600">Ontvangen</dt>
+          <dt className="text-slate-600 dark:text-slate-300">Ontvangen</dt>
           <dd>{formatDate(request.created_at)}</dd>
 
-          <dt className="text-slate-600">E-mail</dt>
+          <dt className="text-slate-600 dark:text-slate-300">E-mail</dt>
           <dd>
-            <a href={`mailto:${request.email}`} className="text-violet-700 hover:underline">
+            <a href={`mailto:${request.email}`} className="text-violet-700 hover:underline dark:text-violet-400">
               {request.email}
             </a>
           </dd>
 
           {request.phone && (
             <>
-              <dt className="text-slate-600">Telefoon</dt>
+              <dt className="text-slate-600 dark:text-slate-300">Telefoon</dt>
               <dd>{request.phone}</dd>
             </>
           )}
 
           {productName && (
             <>
-              <dt className="text-slate-600">Product</dt>
+              <dt className="text-slate-600 dark:text-slate-300">Product</dt>
               <dd>{productName}</dd>
             </>
           )}
 
-          <dt className="text-slate-600">Aantal</dt>
+          <dt className="text-slate-600 dark:text-slate-300">Aantal</dt>
           <dd>{request.quantity}</dd>
 
           {request.color && (
             <>
-              <dt className="text-slate-600">Kleur</dt>
+              <dt className="text-slate-600 dark:text-slate-300">Kleur</dt>
               <dd>{request.color}</dd>
             </>
           )}
 
           {request.material && (
             <>
-              <dt className="text-slate-600">Materiaal</dt>
+              <dt className="text-slate-600 dark:text-slate-300">Materiaal</dt>
               <dd>{request.material}</dd>
             </>
           )}
 
           {request.description && (
             <>
-              <dt className="text-slate-600">Omschrijving</dt>
+              <dt className="text-slate-600 dark:text-slate-300">Omschrijving</dt>
               <dd className="whitespace-pre-wrap">{request.description}</dd>
             </>
           )}
@@ -156,9 +156,9 @@ export default async function RequestDetailPage({
 
         {request.type === "file" && (
           <section className="mt-6">
-            <h2 className="text-sm font-medium text-slate-600">Bestanden</h2>
+            <h2 className="text-sm font-medium text-slate-600 dark:text-slate-400">Bestanden</h2>
             {filesError ? (
-              <p className="mt-2 text-sm text-red-700">
+              <p className="mt-2 text-sm text-red-700 dark:text-red-400">
                 Kon bestanden niet laden.
               </p>
             ) : files && files.length > 0 ? (
@@ -168,13 +168,13 @@ export default async function RequestDetailPage({
                   return (
                     <li key={file.id}>
                       {url ? (
-                        <a href={url} className="text-violet-700 hover:underline">
+                        <a href={url} className="text-violet-700 hover:underline dark:text-violet-400">
                           {file.original_name}
                         </a>
                       ) : (
                         <span>{file.original_name}</span>
                       )}{" "}
-                      <span className="text-slate-500">
+                      <span className="text-slate-500 dark:text-slate-400">
                         ({formatFileSize(file.size_bytes)})
                         {url ? "" : " — download tijdelijk niet beschikbaar"}
                       </span>
@@ -183,15 +183,15 @@ export default async function RequestDetailPage({
                 })}
               </ul>
             ) : (
-              <p className="mt-2 text-sm text-slate-500">Geen bestanden.</p>
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Geen bestanden.</p>
             )}
           </section>
         )}
       </Card>
 
       <Card className="mt-6">
-        <h2 className="text-lg font-bold text-slate-900">Statuspagina van de klant</h2>
-        <p className="mt-1 text-sm text-slate-600">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Statuspagina van de klant</h2>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
           Op deze pagina ziet de klant de status en de offerte, en kan die
           akkoord geven. Handig om zelf te delen (bijv. via WhatsApp) als de
           e-mail de klant niet bereikt.
@@ -200,7 +200,7 @@ export default async function RequestDetailPage({
       </Card>
 
       <Card className="mt-6">
-        <h2 className="text-lg font-bold text-slate-900">Offerte &amp; status</h2>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Offerte &amp; status</h2>
         <QuoteForm
           requestId={request.id}
           designFee={request.quote_design_fee}
@@ -210,9 +210,9 @@ export default async function RequestDetailPage({
         />
       </Card>
 
-      <Card className="mt-6 border-red-200">
-        <h2 className="text-lg font-bold text-red-700">Verwijderen</h2>
-        <p className="mt-1 text-sm text-slate-600">
+      <Card className="mt-6 border-red-200 dark:border-red-500/40">
+        <h2 className="text-lg font-bold text-red-700 dark:text-red-400">Verwijderen</h2>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
           Verwijdert de aanvraag en bijbehorende bestanden definitief.
         </p>
         <DeleteButton requestId={request.id} />

@@ -31,7 +31,7 @@ export function CopyStatusLink({ url }: { url: string }) {
   return (
     <div className="mt-2 flex flex-col gap-2">
       <div className="flex items-center gap-3">
-        <code className="min-w-0 flex-1 truncate rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs">
+        <code className="min-w-0 flex-1 truncate rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
           {url}
         </code>
         <Button type="button" onClick={handleCopy} size="sm" className="shrink-0">
@@ -39,7 +39,7 @@ export function CopyStatusLink({ url }: { url: string }) {
         </Button>
       </div>
       {failed && (
-        <p className="text-sm text-red-600">
+        <p className="text-sm text-red-600 dark:text-red-400">
           Kopiëren mislukt — selecteer de link hierboven handmatig.
         </p>
       )}
