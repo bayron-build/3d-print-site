@@ -19,18 +19,18 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
-      <header className="border-b border-slate-200 bg-white">
+    <div className="dark flex min-h-screen flex-col bg-slate-50 [color-scheme:dark] dark:bg-slate-950 dark:text-slate-100">
+      <header className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center justify-between gap-4 px-6 py-3">
           <div className="flex items-center gap-6">
             <Link href="/admin" className="flex items-center gap-2">
               <CubeLogo className="h-7 w-7 text-violet-600" />
-              <span className="font-bold text-slate-900">Beheer</span>
+              <span className="font-bold text-slate-900 dark:text-white">Beheer</span>
             </Link>
             <AdminNav />
           </div>
           <div className="flex items-center gap-4">
-            <span className="hidden text-sm text-slate-500 sm:inline">
+            <span className="hidden text-sm text-slate-500 sm:inline dark:text-slate-400">
               {email}
             </span>
             <form action={logout}>

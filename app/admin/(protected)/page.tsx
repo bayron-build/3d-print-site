@@ -46,8 +46,8 @@ export default async function AdminDashboardPage({
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-slate-900">Aanvragen</h1>
-      <p className="mt-1 text-sm text-slate-500">
+      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Aanvragen</h1>
+      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
         {requests?.length ?? 0}{" "}
         {requests?.length === 1 ? "aanvraag" : "aanvragen"}
         {activeFilter ? ` met status “${STATUS_LABELS[activeFilter]}”` : ""}
@@ -74,40 +74,40 @@ export default async function AdminDashboardPage({
       </nav>
 
       {error ? (
-        <p className="mt-6 text-red-700">
+        <p className="mt-6 text-red-700 dark:text-red-400">
           Kon aanvragen niet laden: {error.message}
         </p>
       ) : requests && requests.length > 0 ? (
         <Card className="mt-6 overflow-hidden p-0">
-          <div className="hidden gap-4 border-b border-slate-200 bg-slate-50 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:grid sm:grid-cols-[7rem_1.4fr_1fr_4rem_9rem]">
+          <div className="hidden gap-4 border-b border-slate-200 bg-slate-50 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:grid sm:grid-cols-[7rem_1.4fr_1fr_4rem_9rem] dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-400">
             <span>Datum</span>
             <span>Klant</span>
             <span>Type</span>
             <span>Aantal</span>
             <span>Status</span>
           </div>
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
             {requests.map((request) => (
               <li key={request.id}>
                 <Link
                   href={`/admin/aanvragen/${request.id}`}
-                  className="grid gap-1 px-4 py-3 text-sm transition-colors hover:bg-violet-50/60 sm:grid-cols-[7rem_1.4fr_1fr_4rem_9rem] sm:items-center sm:gap-4"
+                  className="grid gap-1 px-4 py-3 text-sm transition-colors hover:bg-violet-50/60 dark:hover:bg-violet-500/10 sm:grid-cols-[7rem_1.4fr_1fr_4rem_9rem] sm:items-center sm:gap-4"
                 >
-                  <span className="text-slate-500">
+                  <span className="text-slate-500 dark:text-slate-400">
                     {formatRequestDate(request.created_at)}
                   </span>
                   <span className="min-w-0">
-                    <span className="block truncate font-medium text-slate-900">
+                    <span className="block truncate font-medium text-slate-900 dark:text-white">
                       {request.customer_name}
                     </span>
-                    <span className="block truncate text-xs text-slate-500">
+                    <span className="block truncate text-xs text-slate-500 dark:text-slate-400">
                       {request.email}
                     </span>
                   </span>
-                  <span className="text-slate-600">
+                  <span className="text-slate-600 dark:text-slate-300">
                     {TYPE_LABELS[request.type] ?? request.type}
                   </span>
-                  <span className="text-slate-600">{request.quantity}</span>
+                  <span className="text-slate-600 dark:text-slate-300">{request.quantity}</span>
                   <span>
                     <StatusBadge status={request.status as RequestStatus} />
                   </span>
@@ -118,7 +118,7 @@ export default async function AdminDashboardPage({
         </Card>
       ) : (
         <Card className="mt-6">
-          <p className="text-slate-600">
+          <p className="text-slate-600 dark:text-slate-300">
             {activeFilter
               ? `Geen aanvragen met status “${STATUS_LABELS[activeFilter]}”.`
               : "Nog geen aanvragen."}
@@ -145,19 +145,19 @@ function FilterCard({
   return (
     <Link
       href={href}
-      className={`rounded-xl border bg-white p-3 transition-colors ${
+      className={`rounded-xl border bg-white p-3 transition-colors dark:bg-slate-900 ${
         active
-          ? "border-violet-600 ring-1 ring-violet-600"
-          : "border-slate-200 hover:border-violet-300"
+          ? "border-violet-600 ring-1 ring-violet-600 dark:border-violet-500 dark:ring-violet-500"
+          : "border-slate-200 hover:border-violet-300 dark:border-slate-800 dark:hover:border-violet-500"
       }`}
     >
-      <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+      <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
         {dotClass && (
           <span className={`h-2 w-2 rounded-full ${dotClass}`} aria-hidden />
         )}
         {label}
       </span>
-      <span className="mt-1 block text-2xl font-bold text-slate-900">
+      <span className="mt-1 block text-2xl font-bold text-slate-900 dark:text-white">
         {count}
       </span>
     </Link>
