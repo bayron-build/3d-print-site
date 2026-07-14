@@ -74,8 +74,8 @@ export function PhotoManager({
 
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="text-lg font-semibold text-slate-900">Foto&apos;s</h2>
-      <p className="text-sm text-slate-600">
+      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Foto&apos;s</h2>
+      <p className="text-sm text-slate-600 dark:text-slate-300">
         Max {MAX_PHOTOS} foto&apos;s ({PHOTO_EXTENSIONS.join(", ")}, max 10MB
         per stuk). De eerste foto is de omslagfoto in de catalogus.
       </p>
@@ -88,13 +88,13 @@ export function PhotoManager({
               <img
                 src={productPhotoUrl(path)}
                 alt=""
-                className="aspect-square w-full rounded-lg border border-slate-200 object-cover"
+                className="aspect-square w-full rounded-lg border border-slate-200 object-cover dark:border-slate-800"
               />
               <button
                 type="button"
                 disabled={busy}
                 onClick={() => handleDelete(path)}
-                className="text-sm text-red-600 hover:underline disabled:opacity-50"
+                className="text-sm text-red-600 hover:underline disabled:opacity-50 dark:text-red-400"
               >
                 Verwijderen
               </button>
@@ -109,13 +109,13 @@ export function PhotoManager({
           type="file"
           multiple
           accept={PHOTO_EXTENSIONS.join(",")}
-          className="text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-violet-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-violet-700 hover:file:bg-violet-200"
+          className="text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-violet-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-violet-700 hover:file:bg-violet-200 dark:text-slate-400 dark:file:bg-violet-500/20 dark:file:text-violet-300 dark:hover:file:bg-violet-500/30"
         />
         <Button type="button" disabled={busy} onClick={handleUpload} size="sm">
           {isUploading ? "Uploaden…" : "Foto's uploaden"}
         </Button>
       </div>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
     </section>
   );
 }

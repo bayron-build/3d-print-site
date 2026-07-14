@@ -24,7 +24,7 @@ export default async function EditProductPage({
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-2xl font-bold text-slate-900">Product bewerken</h1>
+      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Product bewerken</h1>
       <Card className="max-w-xl">
         <ProductForm
           action={updateProduct}

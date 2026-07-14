@@ -5,8 +5,8 @@ import { Card } from "@/components/ui/card";
 export default function NewProductPage() {
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold text-slate-900">Nieuw product</h1>
-      <p className="max-w-xl text-sm text-slate-600">
+      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Nieuw product</h1>
+      <p className="max-w-xl text-sm text-slate-600 dark:text-slate-300">
         Na het aanmaken kom je op de bewerkpagina en kun je foto&apos;s
         uploaden.
       </p>

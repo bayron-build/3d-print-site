@@ -66,8 +66,8 @@ export function ProductForm({
         <span className="text-sm">Actief (zichtbaar in de catalogus)</span>
       </label>
 
-      {errors.form && <p className="text-sm text-red-600">{errors.form}</p>}
-      {state.ok && <p className="text-sm text-green-700">Opgeslagen.</p>}
+      {errors.form && <p className="text-sm text-red-600 dark:text-red-400">{errors.form}</p>}
+      {state.ok && <p className="text-sm text-green-700 dark:text-green-400">Opgeslagen.</p>}
 
       <Button type="submit" disabled={pending} className="self-start">
         {pending ? "Bezig…" : submitLabel}

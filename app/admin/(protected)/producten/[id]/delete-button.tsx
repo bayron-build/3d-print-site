@@ -44,7 +44,7 @@ export function DeleteProductButton({ productId }: { productId: string }) {
           </Button>
         </form>
       )}
-      {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+      {state.error && <p className="text-sm text-red-600 dark:text-red-400">{state.error}</p>}
     </div>
   );
 }
