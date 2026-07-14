@@ -35,7 +35,7 @@ export default async function Home() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <SiteHeader variant="dark" />
+      <SiteHeader />
 
       {/* Dark hero band — the owner's requested contrast: dark top, white rest. */}
       <section className="bg-gray-950 text-white">

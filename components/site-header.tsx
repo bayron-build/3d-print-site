@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ButtonLink } from "@/components/ui/button";
 import { SITE_BYLINE, SITE_NAME } from "@/lib/site";
 
 // The cube mark from the mockup, drawn inline so no image asset is needed.
@@ -19,58 +20,31 @@ export function CubeLogo({ className }: { className?: string }) {
   );
 }
 
-// Public-site header. `dark` sits on the landing page's dark hero band;
-// `light` is for all other public pages. Mobile shows logo + CTA only
+// Public-site header. Light-only since the redesign; mobile shows logo + CTA
 // (no hamburger menu in v1).
-export function SiteHeader({
-  variant = "light",
-}: {
-  variant?: "dark" | "light";
-}) {
-  const dark = variant === "dark";
+export function SiteHeader() {
   return (
-    <header
-      className={
-        dark
-          ? "bg-gray-950 text-white"
-          : "border-b border-gray-200 bg-white text-gray-900"
-      }
-    >
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4">
+    <header className="border-b border-slate-200 bg-white">
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 py-4">
         <Link href="/" className="flex items-center gap-2">
-          <CubeLogo
-            className={`h-8 w-8 ${dark ? "text-indigo-400" : "text-indigo-600"}`}
-          />
+          <CubeLogo className="h-8 w-8 text-violet-600" />
           <span className="flex flex-col leading-tight">
-            <span className="font-bold">{SITE_NAME}</span>
-            <span
-              className={`text-xs ${dark ? "text-gray-400" : "text-gray-500"}`}
-            >
-              {SITE_BYLINE}
-            </span>
+            <span className="font-bold text-slate-900">{SITE_NAME}</span>
+            <span className="text-xs text-slate-500">{SITE_BYLINE}</span>
           </span>
         </Link>
-        <nav
-          className={`hidden items-center gap-6 text-sm sm:flex ${
-            dark ? "text-gray-300" : "text-gray-600"
-          }`}
-        >
-          <Link href="/modellen" className="hover:underline">
+        <nav className="hidden items-center gap-6 text-sm text-slate-600 sm:flex">
+          <Link href="/modellen" className="hover:text-violet-700">
             Modellen
           </Link>
-          <Link href="/#hoe-het-werkt" className="hover:underline">
+          <Link href="/#hoe-het-werkt" className="hover:text-violet-700">
             Hoe het werkt
           </Link>
-          <Link href="/#contact" className="hover:underline">
+          <Link href="/#contact" className="hover:text-violet-700">
             Contact
           </Link>
         </nav>
-        <Link
-          href="/aanvraag"
-          className="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
-        >
-          Offerte aanvragen
-        </Link>
+        <ButtonLink href="/aanvraag">Offerte aanvragen</ButtonLink>
       </div>
     </header>
   );
