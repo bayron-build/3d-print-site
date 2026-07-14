@@ -15,7 +15,7 @@ import {
   IconTruck,
 } from "@/components/ui/icons";
 import dragon from "@/public/images/dragon.jpg";
-import heroPrinter from "@/public/images/hero-printer.jpg";
+import heroPrinter from "@/public/images/hero-printer-violet.jpg";
 
 // Matches the real pipeline: manual quote by email, Akkoord on the status
 // page, pickup with bank transfer/Tikkie.
@@ -93,7 +93,7 @@ export default async function Home() {
             </div>
             <Image
               src={heroPrinter}
-              alt="3D-printer die een vaas print"
+              alt="3D-printer die een paarse vaas print"
               priority
               className="hidden rounded-2xl lg:block"
             />
