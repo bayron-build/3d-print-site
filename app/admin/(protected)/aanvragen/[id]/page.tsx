@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { STATUS_BADGE_CLASSES, STATUS_LABELS, type RequestStatus } from "@/lib/requests/status";
+import { type RequestStatus } from "@/lib/requests/status";
 import { statusPageUrl } from "@/lib/email/notifications";
+import { Card } from "@/components/ui/card";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { formatFileSize } from "@/lib/format";
 import { QuoteForm } from "./quote-form";
 import { DeleteButton } from "./delete-button";
 import { CopyStatusLink } from "./copy-status-link";
@@ -25,12 +28,6 @@ function formatDate(value: string): string {
     hour: "2-digit",
     minute: "2-digit",
   });
-}
-
-function formatSize(bytes: number): string {
-  const mb = bytes / (1024 * 1024);
-  if (mb >= 1) return `${mb.toFixed(1)} MB`;
-  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
 }
 
 export default async function RequestDetailPage({
@@ -93,122 +90,117 @@ export default async function RequestDetailPage({
     : (request.products as { name: string } | null)?.name;
 
   return (
-    <div className="max-w-2xl">
-      <Link href="/admin" className="text-sm text-blue-700 underline">
+    <div className="max-w-3xl">
+      <Link href="/admin" className="text-sm text-violet-700 hover:underline">
         ← Terug naar overzicht
       </Link>
 
       <div className="mt-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{request.customer_name}</h1>
-        <span
-          className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-            STATUS_BADGE_CLASSES[request.status as RequestStatus] ??
-            "bg-gray-100 text-gray-800"
-          }`}
-        >
-          {STATUS_LABELS[request.status as RequestStatus] ?? request.status}
-        </span>
+        <h1 className="text-2xl font-bold text-slate-900">{request.customer_name}</h1>
+        <StatusBadge status={request.status as RequestStatus} />
       </div>
 
-      <dl className="mt-6 grid grid-cols-[8rem_1fr] gap-y-2 text-sm">
-        <dt className="text-gray-600">Type</dt>
-        <dd>{TYPE_LABELS[request.type] ?? request.type}</dd>
+      <Card className="mt-6">
+        <dl className="grid grid-cols-[8rem_1fr] gap-y-2 text-sm">
+          <dt className="text-slate-600">Type</dt>
+          <dd>{TYPE_LABELS[request.type] ?? request.type}</dd>
 
-        <dt className="text-gray-600">Ontvangen</dt>
-        <dd>{formatDate(request.created_at)}</dd>
+          <dt className="text-slate-600">Ontvangen</dt>
+          <dd>{formatDate(request.created_at)}</dd>
 
-        <dt className="text-gray-600">E-mail</dt>
-        <dd>
-          <a href={`mailto:${request.email}`} className="text-blue-700 underline">
-            {request.email}
-          </a>
-        </dd>
+          <dt className="text-slate-600">E-mail</dt>
+          <dd>
+            <a href={`mailto:${request.email}`} className="text-violet-700 hover:underline">
+              {request.email}
+            </a>
+          </dd>
 
-        {request.phone && (
-          <>
-            <dt className="text-gray-600">Telefoon</dt>
-            <dd>{request.phone}</dd>
-          </>
-        )}
-
-        {productName && (
-          <>
-            <dt className="text-gray-600">Product</dt>
-            <dd>{productName}</dd>
-          </>
-        )}
-
-        <dt className="text-gray-600">Aantal</dt>
-        <dd>{request.quantity}</dd>
-
-        {request.color && (
-          <>
-            <dt className="text-gray-600">Kleur</dt>
-            <dd>{request.color}</dd>
-          </>
-        )}
-
-        {request.material && (
-          <>
-            <dt className="text-gray-600">Materiaal</dt>
-            <dd>{request.material}</dd>
-          </>
-        )}
-
-        {request.description && (
-          <>
-            <dt className="text-gray-600">Omschrijving</dt>
-            <dd className="whitespace-pre-wrap">{request.description}</dd>
-          </>
-        )}
-      </dl>
-
-      {request.type === "file" && (
-        <section className="mt-6">
-          <h2 className="text-sm font-medium text-gray-600">Bestanden</h2>
-          {filesError ? (
-            <p className="mt-2 text-sm text-red-700">
-              Kon bestanden niet laden.
-            </p>
-          ) : files && files.length > 0 ? (
-            <ul className="mt-2 flex flex-col gap-1 text-sm">
-              {files.map((file) => {
-                const url = signedUrls[file.storage_path];
-                return (
-                  <li key={file.id}>
-                    {url ? (
-                      <a href={url} className="text-blue-700 underline">
-                        {file.original_name}
-                      </a>
-                    ) : (
-                      <span>{file.original_name}</span>
-                    )}{" "}
-                    <span className="text-gray-500">
-                      ({formatSize(file.size_bytes)})
-                      {url ? "" : " — download tijdelijk niet beschikbaar"}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          ) : (
-            <p className="mt-2 text-sm text-gray-500">Geen bestanden.</p>
+          {request.phone && (
+            <>
+              <dt className="text-slate-600">Telefoon</dt>
+              <dd>{request.phone}</dd>
+            </>
           )}
-        </section>
-      )}
 
-      <section className="mt-8 border-t border-gray-200 pt-6">
-        <h2 className="text-lg font-bold">Statuspagina van de klant</h2>
-        <p className="mt-1 text-sm text-gray-600">
+          {productName && (
+            <>
+              <dt className="text-slate-600">Product</dt>
+              <dd>{productName}</dd>
+            </>
+          )}
+
+          <dt className="text-slate-600">Aantal</dt>
+          <dd>{request.quantity}</dd>
+
+          {request.color && (
+            <>
+              <dt className="text-slate-600">Kleur</dt>
+              <dd>{request.color}</dd>
+            </>
+          )}
+
+          {request.material && (
+            <>
+              <dt className="text-slate-600">Materiaal</dt>
+              <dd>{request.material}</dd>
+            </>
+          )}
+
+          {request.description && (
+            <>
+              <dt className="text-slate-600">Omschrijving</dt>
+              <dd className="whitespace-pre-wrap">{request.description}</dd>
+            </>
+          )}
+        </dl>
+
+        {request.type === "file" && (
+          <section className="mt-6">
+            <h2 className="text-sm font-medium text-slate-600">Bestanden</h2>
+            {filesError ? (
+              <p className="mt-2 text-sm text-red-700">
+                Kon bestanden niet laden.
+              </p>
+            ) : files && files.length > 0 ? (
+              <ul className="mt-2 flex flex-col gap-1 text-sm">
+                {files.map((file) => {
+                  const url = signedUrls[file.storage_path];
+                  return (
+                    <li key={file.id}>
+                      {url ? (
+                        <a href={url} className="text-violet-700 hover:underline">
+                          {file.original_name}
+                        </a>
+                      ) : (
+                        <span>{file.original_name}</span>
+                      )}{" "}
+                      <span className="text-slate-500">
+                        ({formatFileSize(file.size_bytes)})
+                        {url ? "" : " — download tijdelijk niet beschikbaar"}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="mt-2 text-sm text-slate-500">Geen bestanden.</p>
+            )}
+          </section>
+        )}
+      </Card>
+
+      <Card className="mt-6">
+        <h2 className="text-lg font-bold text-slate-900">Statuspagina van de klant</h2>
+        <p className="mt-1 text-sm text-slate-600">
           Op deze pagina ziet de klant de status en de offerte, en kan die
           akkoord geven. Handig om zelf te delen (bijv. via WhatsApp) als de
           e-mail de klant niet bereikt.
         </p>
         <CopyStatusLink url={statusPageUrl(request.access_token)} />
-      </section>
+      </Card>
 
-      <section className="mt-8 border-t border-gray-200 pt-6">
-        <h2 className="text-lg font-bold">Offerte &amp; status</h2>
+      <Card className="mt-6">
+        <h2 className="text-lg font-bold text-slate-900">Offerte &amp; status</h2>
         <QuoteForm
           requestId={request.id}
           designFee={request.quote_design_fee}
@@ -216,15 +208,15 @@ export default async function RequestDetailPage({
           status={request.status as RequestStatus}
           notes={request.admin_notes}
         />
-      </section>
+      </Card>
 
-      <section className="mt-8 border-t border-gray-200 pt-6">
+      <Card className="mt-6 border-red-200">
         <h2 className="text-lg font-bold text-red-700">Verwijderen</h2>
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="mt-1 text-sm text-slate-600">
           Verwijdert de aanvraag en bijbehorende bestanden definitief.
         </p>
         <DeleteButton requestId={request.id} />
-      </section>
+      </Card>
     </div>
   );
 }

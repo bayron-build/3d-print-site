@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { deleteRequest } from "./actions";
 
 // Two-step delete: the first click reveals a confirm/cancel pair so a stray
@@ -10,13 +11,15 @@ export function DeleteButton({ requestId }: { requestId: string }) {
 
   if (!confirming) {
     return (
-      <button
+      <Button
         type="button"
+        variant="danger-outline"
+        size="sm"
         onClick={() => setConfirming(true)}
-        className="mt-3 rounded border border-red-300 px-4 py-2 text-sm text-red-700"
+        className="mt-3"
       >
         Aanvraag verwijderen
-      </button>
+      </Button>
     );
   }
 
@@ -24,19 +27,17 @@ export function DeleteButton({ requestId }: { requestId: string }) {
     <form action={deleteRequest} className="mt-3 flex items-center gap-3">
       <input type="hidden" name="requestId" value={requestId} />
       <span className="text-sm">Zeker weten?</span>
-      <button
-        type="submit"
-        className="rounded bg-red-700 px-4 py-2 text-sm text-white"
-      >
+      <Button type="submit" variant="danger" size="sm">
         Ja, verwijderen
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
+        variant="secondary"
+        size="sm"
         onClick={() => setConfirming(false)}
-        className="rounded border border-gray-300 px-4 py-2 text-sm"
       >
         Annuleren
-      </button>
+      </Button>
     </form>
   );
 }
