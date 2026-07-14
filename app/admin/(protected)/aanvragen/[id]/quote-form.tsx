@@ -107,7 +107,7 @@ export function QuoteForm({
         <Textarea name="notes" rows={3} defaultValue={notes ?? ""} />
       </Field>
 
-      {errors.form && <p className="text-sm text-red-700">{errors.form}</p>}
+      {errors.form && <p className="text-sm text-red-600">{errors.form}</p>}
       {state.ok && <p className="text-sm text-green-700">Opgeslagen.</p>}
 
       <Button type="submit" disabled={pending} className="self-start">

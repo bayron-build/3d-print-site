@@ -22,7 +22,7 @@ export function AkkoordButton({ token }: { token: string }) {
         {pending ? "Bezig…" : "Akkoord"}
       </button>
       {state.error && (
-        <p className="mt-2 text-sm text-red-700">{state.error}</p>
+        <p className="mt-2 text-sm text-red-600">{state.error}</p>
       )}
     </form>
   );
