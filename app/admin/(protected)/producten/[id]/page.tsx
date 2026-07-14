@@ -5,6 +5,7 @@ import { updateProduct } from "../actions";
 import { ProductForm } from "../product-form";
 import { PhotoManager } from "./photo-manager";
 import { DeleteProductButton } from "./delete-button";
+import { Card } from "@/components/ui/card";
 
 export default async function EditProductPage({
   params,
@@ -23,19 +24,23 @@ export default async function EditProductPage({
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-2xl font-bold">Product bewerken</h1>
-      <ProductForm
-        action={updateProduct}
-        productId={product.id}
-        initial={{
-          name: product.name,
-          description: product.description ?? "",
-          indicativePrice: priceToInput(product.indicative_price),
-          active: product.active,
-        }}
-        submitLabel="Opslaan"
-      />
-      <PhotoManager productId={product.id} photos={product.photos} />
+      <h1 className="text-2xl font-bold text-slate-900">Product bewerken</h1>
+      <Card className="max-w-xl">
+        <ProductForm
+          action={updateProduct}
+          productId={product.id}
+          initial={{
+            name: product.name,
+            description: product.description ?? "",
+            indicativePrice: priceToInput(product.indicative_price),
+            active: product.active,
+          }}
+          submitLabel="Opslaan"
+        />
+      </Card>
+      <Card className="max-w-xl">
+        <PhotoManager productId={product.id} photos={product.photos} />
+      </Card>
       <DeleteProductButton productId={product.id} />
     </div>
   );

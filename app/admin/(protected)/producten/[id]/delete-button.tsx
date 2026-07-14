@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { deleteProduct, type DeleteProductState } from "../actions";
+import { Button } from "@/components/ui/button";
 
 const initialState: DeleteProductState = { error: null };
 
@@ -17,34 +18,33 @@ export function DeleteProductButton({ productId }: { productId: string }) {
   return (
     <div className="flex flex-col gap-2">
       {!confirming ? (
-        <button
+        <Button
           type="button"
+          variant="danger-outline"
+          size="sm"
           onClick={() => setConfirming(true)}
-          className="self-start rounded border border-red-300 px-4 py-2 text-sm text-red-700"
+          className="self-start"
         >
           Product verwijderen
-        </button>
+        </Button>
       ) : (
         <form action={formAction} className="flex items-center gap-3">
           <input type="hidden" name="productId" value={productId} />
           <span className="text-sm">Zeker weten?</span>
-          <button
-            type="submit"
-            disabled={pending}
-            className="rounded bg-red-700 px-4 py-2 text-sm text-white disabled:opacity-50"
-          >
+          <Button type="submit" variant="danger" size="sm" disabled={pending}>
             {pending ? "Bezig…" : "Ja, verwijderen"}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={() => setConfirming(false)}
-            className="rounded border border-gray-300 px-4 py-2 text-sm"
           >
             Annuleren
-          </button>
+          </Button>
         </form>
       )}
-      {state.error && <p className="text-sm text-red-700">{state.error}</p>}
+      {state.error && <p className="text-sm text-red-600">{state.error}</p>}
     </div>
   );
 }

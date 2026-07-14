@@ -10,6 +10,7 @@ import {
 } from "@/lib/products/validation";
 import { productPhotoUrl } from "@/lib/products/photos";
 import { addProductPhoto, deleteProductPhoto } from "../actions";
+import { Button } from "@/components/ui/button";
 
 // Photos upload browser → storage directly (same reason as the request
 // form's model files: server actions cap out around 1MB on Vercel). The
@@ -72,9 +73,9 @@ export function PhotoManager({
   const busy = isUploading || isPending;
 
   return (
-    <section className="flex max-w-xl flex-col gap-4">
-      <h2 className="text-lg font-semibold">Foto&apos;s</h2>
-      <p className="text-sm text-gray-600">
+    <section className="flex flex-col gap-4">
+      <h2 className="text-lg font-semibold text-slate-900">Foto&apos;s</h2>
+      <p className="text-sm text-slate-600">
         Max {MAX_PHOTOS} foto&apos;s ({PHOTO_EXTENSIONS.join(", ")}, max 10MB
         per stuk). De eerste foto is de omslagfoto in de catalogus.
       </p>
@@ -87,13 +88,13 @@ export function PhotoManager({
               <img
                 src={productPhotoUrl(path)}
                 alt=""
-                className="aspect-square w-full rounded border border-gray-200 object-cover"
+                className="aspect-square w-full rounded-lg border border-slate-200 object-cover"
               />
               <button
                 type="button"
                 disabled={busy}
                 onClick={() => handleDelete(path)}
-                className="text-sm text-red-700 underline disabled:opacity-50"
+                className="text-sm text-red-600 hover:underline disabled:opacity-50"
               >
                 Verwijderen
               </button>
@@ -108,18 +109,13 @@ export function PhotoManager({
           type="file"
           multiple
           accept={PHOTO_EXTENSIONS.join(",")}
-          className="rounded border border-gray-300 px-3 py-2 text-sm"
+          className="text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-violet-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-violet-700 hover:file:bg-violet-200"
         />
-        <button
-          type="button"
-          disabled={busy}
-          onClick={handleUpload}
-          className="rounded bg-gray-900 px-4 py-2 text-sm text-white disabled:opacity-50"
-        >
+        <Button type="button" disabled={busy} onClick={handleUpload} size="sm">
           {isUploading ? "Uploaden…" : "Foto's uploaden"}
-        </button>
+        </Button>
       </div>
-      {error && <p className="text-sm text-red-700">{error}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
     </section>
   );
 }

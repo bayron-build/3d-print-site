@@ -2,6 +2,8 @@
 
 import { useActionState } from "react";
 import type { ProductFormState } from "./actions";
+import { Button } from "@/components/ui/button";
+import { Field, Input, Textarea } from "@/components/ui/field";
 
 export type ProductFormValues = {
   name: string;
@@ -11,9 +13,6 @@ export type ProductFormValues = {
 };
 
 const initialState: ProductFormState = { errors: null, ok: false };
-const inputClass = "rounded border border-gray-300 px-3 py-2";
-const labelClass = "flex flex-col gap-1";
-const errorClass = "text-sm text-red-700";
 
 // Shared by the create and edit pages; `productId` is only set when editing.
 export function ProductForm({
@@ -34,67 +33,45 @@ export function ProductForm({
   const errors = state.errors ?? {};
 
   return (
-    <form action={formAction} className="flex max-w-xl flex-col gap-4">
+    <form action={formAction} className="flex flex-col gap-4">
       {productId && (
         <input type="hidden" name="productId" value={productId} />
       )}
 
-      <label className={labelClass}>
-        <span className="text-sm font-medium">Naam</span>
-        <input
-          type="text"
-          name="name"
-          defaultValue={initial.name}
-          required
-          className={inputClass}
-        />
-        {errors.name && <p className={errorClass}>{errors.name}</p>}
-      </label>
+      <Field label="Naam" error={errors.name}>
+        <Input type="text" name="name" defaultValue={initial.name} required />
+      </Field>
 
-      <label className={labelClass}>
-        <span className="text-sm font-medium">Omschrijving (optioneel)</span>
-        <textarea
-          name="description"
-          rows={5}
-          defaultValue={initial.description}
-          className={inputClass}
-        />
-      </label>
+      <Field label="Omschrijving (optioneel)">
+        <Textarea name="description" rows={5} defaultValue={initial.description} />
+      </Field>
 
-      <label className={labelClass}>
-        <span className="text-sm font-medium">Richtprijs (€, optioneel)</span>
-        <input
+      <Field label="Richtprijs (€, optioneel)" error={errors.indicativePrice}>
+        <Input
           type="text"
           name="indicativePrice"
           inputMode="decimal"
           defaultValue={initial.indicativePrice}
           placeholder="bijv. 12,50"
-          className={inputClass}
         />
-        {errors.indicativePrice && (
-          <p className={errorClass}>{errors.indicativePrice}</p>
-        )}
-      </label>
+      </Field>
 
       <label className="flex items-center gap-2">
         <input
           type="checkbox"
           name="active"
           defaultChecked={initial.active}
+          className="accent-violet-600"
         />
         <span className="text-sm">Actief (zichtbaar in de catalogus)</span>
       </label>
 
-      {errors.form && <p className={errorClass}>{errors.form}</p>}
+      {errors.form && <p className="text-sm text-red-600">{errors.form}</p>}
       {state.ok && <p className="text-sm text-green-700">Opgeslagen.</p>}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="self-start rounded bg-gray-900 px-4 py-2 text-white disabled:opacity-50"
-      >
+      <Button type="submit" disabled={pending} className="self-start">
         {pending ? "Bezig…" : submitLabel}
-      </button>
+      </Button>
     </form>
   );
 }
