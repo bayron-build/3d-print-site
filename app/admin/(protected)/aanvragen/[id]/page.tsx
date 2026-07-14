@@ -2,8 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { STATUS_BADGE_CLASSES, STATUS_LABELS, type RequestStatus } from "@/lib/requests/status";
+import { statusPageUrl } from "@/lib/email/notifications";
 import { QuoteForm } from "./quote-form";
 import { DeleteButton } from "./delete-button";
+import { CopyStatusLink } from "./copy-status-link";
 
 const TYPE_LABELS: Record<string, string> = {
   catalog: "Kant-en-klaar",
@@ -43,7 +45,7 @@ export default async function RequestDetailPage({
   const { data: request, error } = await supabase
     .from("requests")
     .select(
-      "id, created_at, type, customer_name, email, phone, description, color, material, quantity, status, quote_design_fee, quote_print_fee, admin_notes, products(name)"
+      "id, created_at, type, customer_name, email, phone, description, color, material, quantity, status, quote_design_fee, quote_print_fee, admin_notes, access_token, products(name)"
     )
     .eq("id", id)
     .maybeSingle();
@@ -194,6 +196,16 @@ export default async function RequestDetailPage({
           )}
         </section>
       )}
+
+      <section className="mt-8 border-t border-gray-200 pt-6">
+        <h2 className="text-lg font-bold">Statuspagina van de klant</h2>
+        <p className="mt-1 text-sm text-gray-600">
+          Op deze pagina ziet de klant de status en de offerte, en kan die
+          akkoord geven. Handig om zelf te delen (bijv. via WhatsApp) als de
+          e-mail de klant niet bereikt.
+        </p>
+        <CopyStatusLink url={statusPageUrl(request.access_token)} />
+      </section>
 
       <section className="mt-8 border-t border-gray-200 pt-6">
         <h2 className="text-lg font-bold">Offerte &amp; status</h2>
