@@ -8,9 +8,10 @@ const BASE =
 const VARIANTS = {
   primary: "bg-violet-600 text-white hover:bg-violet-500",
   secondary:
-    "border border-slate-300 bg-white text-slate-700 hover:border-violet-400 hover:text-violet-700",
+    "border border-slate-300 bg-white text-slate-700 hover:border-violet-400 hover:text-violet-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-violet-500 dark:hover:text-violet-300",
   danger: "bg-red-600 text-white hover:bg-red-500",
-  "danger-outline": "border border-red-300 bg-white text-red-700 hover:bg-red-50",
+  "danger-outline":
+    "border border-red-300 bg-white text-red-700 hover:bg-red-50 dark:border-red-500/40 dark:bg-transparent dark:text-red-400 dark:hover:bg-red-500/10",
 } as const;
 
 const SIZES = {

@@ -5,6 +5,11 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Dark mode is opt-in per subtree: any element with .dark (the admin shell,
+   the admin login page) turns dark: utilities on for itself and descendants.
+   The public site never sets .dark, so it is unaffected. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 body {
   background: #ffffff;
   color: #0f172a; /* slate-900 */

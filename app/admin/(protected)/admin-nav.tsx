@@ -25,8 +25,8 @@ export function AdminNav() {
             href={href}
             className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
               active
-                ? "bg-violet-100 text-violet-800"
-                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                ? "bg-violet-100 text-violet-800 dark:bg-violet-500/20 dark:text-violet-300"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
             }`}
           >
             {label}
