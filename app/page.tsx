@@ -52,14 +52,19 @@ export default async function Home() {
             overlay keeps it readable, and the dark header above melts into
             it. No framed image, no visible photo edge. */}
         <section className="relative overflow-hidden bg-slate-950">
-          <Image
-            src={heroPrinter}
-            alt="3D-printer print een paars raster in het donker"
-            priority
-            fill
-            sizes="100vw"
-            className="object-cover object-[70%_72%]"
-          />
+          {/* Right-anchored on desktop so the wide band doesn't over-crop
+              (zoom into) the photo; its own black left side blends into the
+              section background. Full-bleed backdrop on mobile. */}
+          <div className="absolute inset-0 lg:left-auto lg:w-[62%]">
+            <Image
+              src={heroPrinter}
+              alt="3D-printer print een paars raster in het donker"
+              priority
+              fill
+              sizes="(min-width: 1024px) 62vw, 100vw"
+              className="object-cover object-[65%_62%]"
+            />
+          </div>
           <div
             aria-hidden
             className="absolute inset-0 bg-gradient-to-r from-slate-950 from-10% via-slate-950/70 to-slate-950/15"
