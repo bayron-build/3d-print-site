@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { validateProduct } from "@/lib/products/validation";
+import { MAX_PHOTOS, validateProduct } from "@/lib/products/validation";
 
 export type ProductFormState = {
   errors: Record<string, string> | null;
@@ -79,7 +79,7 @@ export async function updateProduct(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("products")
     .update({
       name: result.data.name,
@@ -87,9 +87,11 @@ export async function updateProduct(
       indicative_price: result.data.indicativePrice,
       active: result.data.active,
     })
-    .eq("id", productId);
+    .eq("id", productId)
+    .select("id");
 
-  if (error) {
+  // No matching row (e.g. deleted in another tab) reports failure, not success.
+  if (error || !data || data.length === 0) {
     return { errors: { form: GENERIC_ERROR }, ok: false };
   }
 
@@ -179,11 +181,17 @@ export async function addProductPhoto(
     return { ok: false, message: GENERIC_ERROR };
   }
 
-  const { error } = await supabase
+  // Mirror validatePhotos' over-max guard server-side, not just in the client.
+  if (product.photos.length >= MAX_PHOTOS) {
+    return { ok: false, message: `Maximaal ${MAX_PHOTOS} foto's per product.` };
+  }
+
+  const { data, error } = await supabase
     .from("products")
     .update({ photos: [...product.photos, path] })
-    .eq("id", productId);
-  if (error) {
+    .eq("id", productId)
+    .select("id");
+  if (error || !data || data.length === 0) {
     return { ok: false, message: GENERIC_ERROR };
   }
 
@@ -197,6 +205,12 @@ export async function deleteProductPhoto(
   productId: string,
   path: string
 ): Promise<PhotoActionResult> {
+  // The path must live under this product's folder — reject anything else so a
+  // mismatched (productId, path) pair cannot delete another product's object.
+  if (!path.startsWith(`${productId}/`)) {
+    return { ok: false, message: GENERIC_ERROR };
+  }
+
   const supabase = await createClient();
 
   const { error: storageError } = await supabase.storage
@@ -215,11 +229,12 @@ export async function deleteProductPhoto(
     return { ok: false, message: GENERIC_ERROR };
   }
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("products")
     .update({ photos: product.photos.filter((p: string) => p !== path) })
-    .eq("id", productId);
-  if (error) {
+    .eq("id", productId)
+    .select("id");
+  if (error || !data || data.length === 0) {
     return { ok: false, message: GENERIC_ERROR };
   }
 

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -18,7 +19,9 @@ type Product = {
 // A malformed id makes Postgres error on the uuid cast; treat every failure
 // mode (error, unknown id, inactive product) as the same Dutch 404 so
 // inactive products' existence never leaks.
-async function getProduct(id: string): Promise<Product | null> {
+// Wrapped in cache() so generateMetadata and the page component share one
+// fetch per request instead of querying twice.
+const getProduct = cache(async (id: string): Promise<Product | null> => {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("products")
@@ -28,7 +31,7 @@ async function getProduct(id: string): Promise<Product | null> {
     .maybeSingle();
   if (error || !data) return null;
   return data;
-}
+});
 
 export async function generateMetadata({
   params,
