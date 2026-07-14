@@ -1,6 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { Card } from "@/components/ui/card";
+import {
+  IconChat,
+  IconClipboard,
+  IconPrinter,
+  IconTruck,
+} from "@/components/ui/icons";
+import { SITE_EMAIL } from "@/lib/site";
 import { RequestForm, type FormType, type ProductOption } from "./request-form";
 
 export const metadata = { title: "Aanvraag indienen" };
@@ -36,25 +44,85 @@ export default async function RequestPage({
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
-      <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 p-8">
-        <h1 className="text-3xl font-bold">Aanvraag indienen</h1>
-        <p className="text-gray-600">
-          Vertel ons wat je wilt laten printen. Je ontvangt per e-mail een
-          prijsvoorstel — je betaalt pas na akkoord.
-        </p>
-        {error ? (
-          <p className="text-red-700">
-            Kon het formulier niet laden, probeer het later opnieuw.
+      <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-10">
+        <div className="max-w-2xl">
+          <h1 className="text-3xl font-bold text-slate-900">
+            Aanvraag indienen
+          </h1>
+          <p className="mt-2 text-slate-600">
+            Vertel ons wat je wilt laten printen. Je ontvangt per e-mail een
+            prijsvoorstel — je betaalt pas na akkoord.
           </p>
-        ) : (
-          <RequestForm
-            products={productList}
-            preselectedProductId={preselected}
-            initialType={initialType}
-          />
-        )}
+        </div>
+        <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <Card>
+            {error ? (
+              <p className="text-red-700">
+                Kon het formulier niet laden, probeer het later opnieuw.
+              </p>
+            ) : (
+              <RequestForm
+                products={productList}
+                preselectedProductId={preselected}
+                initialType={initialType}
+              />
+            )}
+          </Card>
+          <RequestSidebar />
+        </div>
       </main>
       <SiteFooter />
     </div>
+  );
+}
+
+// Trust sidebar: shows the process and takes the "is this legit?" edge off
+// the form (spec: the form alone felt scam-like).
+function RequestSidebar() {
+  return (
+    <aside className="flex flex-col gap-4">
+      <Card>
+        <h2 className="font-semibold text-slate-900">Zo werkt het</h2>
+        <ol className="mt-3 flex flex-col gap-3 text-sm text-slate-600">
+          {(
+            [
+              ["Contact", IconChat],
+              ["Offerte per e-mail", IconClipboard],
+              ["Printen na jouw akkoord", IconPrinter],
+              ["Ophalen of bezorgen", IconTruck],
+            ] as const
+          ).map(([label, Icon], index) => (
+            <li key={label} className="flex items-center gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-100 text-violet-700">
+                <Icon className="h-4 w-4" />
+              </span>
+              <span>
+                <span className="font-medium text-slate-900">
+                  {index + 1}.
+                </span>{" "}
+                {label}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </Card>
+      <Card className="bg-violet-50">
+        <h2 className="font-semibold text-slate-900">Goed om te weten</h2>
+        <ul className="mt-3 flex flex-col gap-2 text-sm text-slate-600">
+          <li>Je betaalt pas nadat je akkoord bent gegaan met de offerte.</li>
+          <li>Je krijgt meestal binnen 1–2 dagen antwoord per e-mail.</li>
+          <li>Betalen kan per bankoverschrijving of Tikkie.</li>
+        </ul>
+        <p className="mt-3 text-sm text-slate-600">
+          Vragen? Mail{" "}
+          <a
+            href={`mailto:${SITE_EMAIL}`}
+            className="font-medium text-violet-700 hover:underline"
+          >
+            {SITE_EMAIL}
+          </a>
+        </p>
+      </Card>
+    </aside>
   );
 }
