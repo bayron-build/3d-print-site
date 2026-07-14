@@ -2,6 +2,7 @@ import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { ButtonLink } from "@/components/ui/button";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { CubeLogo } from "@/components/site-header";
@@ -58,13 +59,13 @@ export default async function ProductDetailPage({
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-12">
-        <Link href="/modellen" className="text-sm text-indigo-600 hover:underline">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-10">
+        <Link href="/modellen" className="text-sm text-violet-700 hover:underline">
           ← Alle modellen
         </Link>
         <div className="mt-6 grid gap-10 lg:grid-cols-2">
           <div className="flex flex-col gap-4">
-            <div className="aspect-square w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
+            <div className="aspect-square w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
               {cover ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -74,7 +75,7 @@ export default async function ProductDetailPage({
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
-                  <CubeLogo className="h-16 w-16 text-gray-300" />
+                  <CubeLogo className="h-16 w-16 text-slate-300" />
                 </div>
               )}
             </div>
@@ -86,37 +87,38 @@ export default async function ProductDetailPage({
                     key={path}
                     src={productPhotoUrl(path)}
                     alt={product.name}
-                    className="aspect-square w-full rounded-lg border border-gray-200 object-cover"
+                    className="aspect-square w-full rounded-xl border border-slate-200 object-cover"
                   />
                 ))}
               </div>
             )}
           </div>
           <div className="flex flex-col gap-4">
-            <h1 className="text-3xl font-bold">{product.name}</h1>
+            <h1 className="text-3xl font-bold text-slate-900">{product.name}</h1>
             {product.indicative_price !== null && (
               <p className="text-lg">
                 Richtprijs vanaf{" "}
                 <span className="font-semibold">
                   {formatEuro(product.indicative_price)}
                 </span>
-                <span className="block text-sm text-gray-500">
+                <span className="block text-sm text-slate-500">
                   De definitieve prijs volgt in je offerte (kleur, materiaal en
                   aantal tellen mee).
                 </span>
               </p>
             )}
             {product.description && (
-              <p className="whitespace-pre-line text-gray-700">
+              <p className="whitespace-pre-line text-slate-700">
                 {product.description}
               </p>
             )}
-            <Link
+            <ButtonLink
               href={`/aanvraag?product=${product.id}`}
-              className="mt-2 self-start rounded bg-indigo-600 px-6 py-3 font-medium text-white hover:bg-indigo-500"
+              size="lg"
+              className="mt-2 self-start"
             >
               Bestellen
-            </Link>
+            </ButtonLink>
           </div>
         </div>
       </main>

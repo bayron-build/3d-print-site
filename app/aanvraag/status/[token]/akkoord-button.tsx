@@ -17,7 +17,7 @@ export function AkkoordButton({ token }: { token: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="rounded bg-green-700 px-6 py-2 font-medium text-white disabled:opacity-50"
+        className="rounded-lg bg-green-600 px-6 py-2.5 font-medium text-white transition-colors hover:bg-green-500 disabled:pointer-events-none disabled:opacity-50"
       >
         {pending ? "Bezig…" : "Akkoord"}
       </button>

@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatEuro } from "@/lib/format";
 import { STATUS_LABELS, type RequestStatus } from "@/lib/requests/status";
+import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
 import { AkkoordButton } from "./akkoord-button";
 
 // Private-by-token page: never let a shared or leaked link end up in a
@@ -90,15 +92,17 @@ export default async function StatusPage({
     toAmount(request.quote_design_fee) + toAmount(request.quote_print_fee);
 
   return (
-    <main className="mx-auto w-full max-w-2xl p-8">
-      <h1 className="text-2xl font-bold">Je aanvraag</h1>
-      <p className="mt-1 text-sm text-gray-600">
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader />
+      <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-10">
+      <h1 className="text-2xl font-bold text-slate-900">Je aanvraag</h1>
+      <p className="mt-1 text-sm text-slate-600">
         Ingediend op {formatDate(request.created_at)}
       </p>
 
       <section className="mt-6">
         {status === "rejected" ? (
-          <p className="rounded bg-red-50 px-4 py-3 text-red-800">
+          <p className="rounded-lg bg-red-50 px-4 py-3 text-red-800">
             Deze aanvraag is helaas afgewezen. Vragen? Beantwoord de e-mail
             die je van ons kreeg.
           </p>
@@ -111,8 +115,8 @@ export default async function StatusPage({
                   key={step}
                   className={`rounded-full border px-3 py-1 text-sm ${
                     reached
-                      ? "border-gray-900 bg-gray-900 text-white"
-                      : "border-gray-300 text-gray-500"
+                      ? "border-violet-600 bg-violet-600 text-white"
+                      : "border-slate-300 text-slate-500"
                   }`}
                 >
                   {STATUS_LABELS[step]}
@@ -124,43 +128,43 @@ export default async function StatusPage({
       </section>
 
       <dl className="mt-8 grid grid-cols-[8rem_1fr] gap-y-2 text-sm">
-        <dt className="text-gray-600">Type</dt>
+        <dt className="text-slate-600">Type</dt>
         <dd>{TYPE_LABELS[request.type] ?? request.type}</dd>
 
         {request.product_name && (
           <>
-            <dt className="text-gray-600">Product</dt>
+            <dt className="text-slate-600">Product</dt>
             <dd>{request.product_name}</dd>
           </>
         )}
 
-        <dt className="text-gray-600">Aantal</dt>
+        <dt className="text-slate-600">Aantal</dt>
         <dd>{request.quantity}</dd>
 
         {request.color && (
           <>
-            <dt className="text-gray-600">Kleur</dt>
+            <dt className="text-slate-600">Kleur</dt>
             <dd>{request.color}</dd>
           </>
         )}
 
         {request.material && (
           <>
-            <dt className="text-gray-600">Materiaal</dt>
+            <dt className="text-slate-600">Materiaal</dt>
             <dd>{request.material}</dd>
           </>
         )}
 
         {request.description && (
           <>
-            <dt className="text-gray-600">Omschrijving</dt>
+            <dt className="text-slate-600">Omschrijving</dt>
             <dd className="whitespace-pre-wrap">{request.description}</dd>
           </>
         )}
 
         {request.file_names.length > 0 && (
           <>
-            <dt className="text-gray-600">Bestanden</dt>
+            <dt className="text-slate-600">Bestanden</dt>
             <dd>
               <ul>
                 {request.file_names.map((name) => (
@@ -173,18 +177,18 @@ export default async function StatusPage({
       </dl>
 
       {hasQuote && (
-        <section className="mt-8 rounded border border-gray-200 p-4">
-          <h2 className="text-lg font-bold">Offerte</h2>
+        <section className="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-bold text-slate-900">Offerte</h2>
           <dl className="mt-2 grid grid-cols-[8rem_1fr] gap-y-1 text-sm">
             {request.quote_design_fee !== null && (
               <>
-                <dt className="text-gray-600">Ontwerpkosten</dt>
+                <dt className="text-slate-600">Ontwerpkosten</dt>
                 <dd>{formatEuro(request.quote_design_fee)}</dd>
               </>
             )}
             {request.quote_print_fee !== null && (
               <>
-                <dt className="text-gray-600">Printkosten</dt>
+                <dt className="text-slate-600">Printkosten</dt>
                 <dd>{formatEuro(request.quote_print_fee)}</dd>
               </>
             )}
@@ -194,7 +198,7 @@ export default async function StatusPage({
 
           {status === "quoted" && (
             <>
-              <p className="mt-4 text-sm text-gray-600">
+              <p className="mt-4 text-sm text-slate-600">
                 Ga je akkoord met deze offerte? Dan gaan we voor je aan de
                 slag.
               </p>
@@ -208,6 +212,8 @@ export default async function StatusPage({
           )}
         </section>
       )}
-    </main>
+      </main>
+      <SiteFooter />
+    </div>
   );
 }

@@ -22,16 +22,16 @@ export default async function ModelsPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-12">
-        <h1 className="text-3xl font-bold">Modellen</h1>
-        <p className="mt-2 max-w-xl text-gray-600">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-10">
+        <h1 className="text-3xl font-bold text-slate-900">Modellen</h1>
+        <p className="mt-2 max-w-xl text-slate-600">
           Kant-en-klare ontwerpen, geprint op bestelling. De richtprijs is een
           indicatie — je definitieve prijs volgt in de offerte.
         </p>
         {error ? (
           <p className="mt-8 text-red-700">{error.message}</p>
         ) : productList.length === 0 ? (
-          <p className="mt-8 max-w-xl text-gray-600">
+          <p className="mt-8 max-w-xl text-slate-600">
             De catalogus wordt gevuld — binnenkort vind je hier kant-en-klare
             modellen. Een eigen bestand of idee kun je nu al insturen.
           </p>
