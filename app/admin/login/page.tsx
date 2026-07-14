@@ -11,12 +11,12 @@ export default async function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-8">
-      <div className="flex w-full max-w-sm flex-col gap-6 rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+    <main className="dark flex min-h-screen flex-col items-center justify-center bg-slate-50 p-8 [color-scheme:dark] dark:bg-slate-950 dark:text-slate-100">
+      <div className="flex w-full max-w-sm flex-col gap-6 rounded-xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="flex flex-col items-center gap-2">
           <CubeLogo className="h-9 w-9 text-violet-600" />
-          <h1 className="text-2xl font-bold text-slate-900">Inloggen</h1>
-          <p className="text-sm text-slate-500">Beheer van {SITE_NAME}</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Inloggen</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Beheer van {SITE_NAME}</p>
         </div>
         <LoginForm />
       </div>
