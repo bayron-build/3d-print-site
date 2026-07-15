@@ -93,3 +93,19 @@ export function IconCheck({ className }: { className?: string }) {
     </Icon>
   );
 }
+
+export function IconMenu({ className }: { className?: string }) {
+  return (
+    <Icon className={className}>
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </Icon>
+  );
+}
+
+export function IconClose({ className }: { className?: string }) {
+  return (
+    <Icon className={className}>
+      <path d="m6 6 12 12M18 6 6 18" />
+    </Icon>
+  );
+}

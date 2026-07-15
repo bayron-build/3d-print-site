@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui/button";
 import { SITE_BYLINE, SITE_NAME } from "@/lib/site";
+import { MobileMenu } from "./mobile-menu";
 
 // The cube mark from the mockup, drawn inline so no image asset is needed.
 export function CubeLogo({ className }: { className?: string }) {
@@ -21,11 +22,12 @@ export function CubeLogo({ className }: { className?: string }) {
 }
 
 // Public-site header. Dark (mockup): on the homepage it melts into the
-// full-bleed hero; on light pages it bookends with the dark footer. Mobile
-// shows logo + CTA (no hamburger menu in v1).
+// full-bleed hero — no bottom border, the color change is separation enough
+// on light pages. Mobile gets a hamburger menu; `relative` anchors its
+// dropdown panel.
 export function SiteHeader() {
   return (
-    <header className="border-b border-slate-800 bg-slate-950">
+    <header className="relative bg-slate-950">
       <div className="mx-auto flex w-full max-w-[88rem] items-center justify-between gap-4 px-6 py-4">
         <Link href="/" className="flex items-center gap-2">
           <CubeLogo className="h-8 w-8 text-violet-400" />
@@ -45,7 +47,14 @@ export function SiteHeader() {
             Contact
           </Link>
         </nav>
-        <ButtonLink href="/aanvraag">Offerte aanvragen</ButtonLink>
+        {/* max-sm:hidden (media-query variant) reliably beats the BASE
+            inline-flex; a plain `hidden` utility would tie on specificity.
+            Below sm the CTA lives inside the menu panel instead — logo +
+            CTA + hamburger don't fit a 390px bar. */}
+        <ButtonLink href="/aanvraag" className="max-sm:hidden">
+          Offerte aanvragen
+        </ButtonLink>
+        <MobileMenu />
       </div>
     </header>
   );
