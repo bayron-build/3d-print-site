@@ -89,13 +89,19 @@ price, and the admin has to type in a price that already exists.
 
 Extend the existing pure-function test suites:
 
-- `lib/requests/validation.test.ts` — catalog order requires a priced
-  product (server-side lookup path).
 - `lib/products/validation.test.ts` — active product requires a price.
-- Status-option filtering per request type (new helper in
-  `lib/requests/status.ts`).
+- `lib/requests/status.test.ts` (new) — status-option filtering per request
+  type (new `statusOptionsFor` helper in `lib/requests/status.ts`).
 - `lib/email/templates.test.ts` — confirmation template with price block.
-- Total calculation helper.
+- `lib/format.test.ts` — the shared `toAmount` helper used for every
+  `numeric` column conversion and total.
+
+The server-side price lookup in `app/aanvraag/actions.ts` is I/O against
+Supabase. This codebase tests pure functions only — there is no
+request-mocking harness, and adding one for a single lookup is not worth it.
+That path is verified manually via the end-to-end smoke test instead.
+"Catalog requires a product" is already covered in
+`lib/requests/validation.test.ts` and needs no change.
 
 ## Out of scope
 
