@@ -49,8 +49,10 @@ export function isRequestStatus(value: string): value is RequestStatus {
 }
 
 // Fixed-price orders (unit_price set) skip the quote loop: no "quoted", no
-// "approved". The full list stays valid in the DB CHECK, so legacy catalog
-// requests already sitting in those statuses remain readable.
+// "approved". Legacy catalog requests have a NULL unit_price, so they take the
+// false branch and keep all six — this short list is never applied to a request
+// already sitting in "quoted"/"approved". Backfilling unit_price onto existing
+// rows would break that invariant, which is why we never do it.
 const FIXED_PRICE_STATUSES = [
   "received",
   "printing",
