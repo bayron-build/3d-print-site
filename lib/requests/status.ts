@@ -47,3 +47,19 @@ export const STATUS_DOT_CLASSES: Record<RequestStatus, string> = {
 export function isRequestStatus(value: string): value is RequestStatus {
   return (REQUEST_STATUSES as readonly string[]).includes(value);
 }
+
+// Fixed-price orders (unit_price set) skip the quote loop: no "quoted", no
+// "approved". The full list stays valid in the DB CHECK, so legacy catalog
+// requests already sitting in those statuses remain readable.
+const FIXED_PRICE_STATUSES = [
+  "received",
+  "printing",
+  "done",
+  "rejected",
+] as const satisfies readonly RequestStatus[];
+
+export function statusOptionsFor(
+  hasFixedPrice: boolean
+): readonly RequestStatus[] {
+  return hasFixedPrice ? FIXED_PRICE_STATUSES : REQUEST_STATUSES;
+}
