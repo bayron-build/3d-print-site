@@ -49,9 +49,11 @@ describe("confirmationEmail — fixed-price order", () => {
       order,
     });
     expect(email.subject).toBe("We hebben je bestelling ontvangen");
-    expect(email.html).toContain("€ 12,50");
+    // Bound to their labels: a bare "€ 12,50" would still match if per-stuk
+    // and totaal were swapped, and that distinction is the point of this email.
+    expect(email.html).toContain("Prijs per stuk: € 12,50");
     expect(email.html).toContain("Aantal: 3");
-    expect(email.html).toContain("€ 37,50");
+    expect(email.html).toContain("Totaal: € 37,50");
     expect(email.html).toContain(STATUS_URL);
   });
 
@@ -62,6 +64,29 @@ describe("confirmationEmail — fixed-price order", () => {
       order,
     });
     expect(email.html).not.toContain("prijsvoorstel");
+  });
+
+  // The commercial core of this branch: the price is final and no offerte
+  // follows. not.toContain("prijsvoorstel") passes if it were deleted entirely.
+  it("states the price is fixed and no quote follows", () => {
+    const email = confirmationEmail({
+      customerName: "Jan",
+      statusUrl: STATUS_URL,
+      order,
+    });
+    expect(email.html).toContain(
+      "Dit is een vaste prijs — je hoeft geen offerte af te wachten."
+    );
+  });
+
+  it("escapes HTML in the customer name", () => {
+    const email = confirmationEmail({
+      customerName: "<script>alert(1)</script>",
+      statusUrl: STATUS_URL,
+      order,
+    });
+    expect(email.html).not.toContain("<script>");
+    expect(email.html).toContain("&lt;script&gt;");
   });
 
   it("keeps the quote-flow wording when there is no order", () => {
