@@ -2,45 +2,16 @@
 -- order time. NULL for file/custom requests and for catalog requests created
 -- before this migration (those keep the old quote flow).
 -- Run once by the OWNER in the Supabase web SQL editor (same workflow as 0001-0005).
+--
+-- Safe to run at any time, including well before the code that fills the column
+-- ships: the column is nullable and today's insert never names it, and the RPC's
+-- extra result key is read by name, so callers that don't know it ignore it. The
+-- rule that makes unit_price trustworthy is deliberately NOT here -- it would
+-- reject the current code's price-less catalog inserts. It lives in 0007, to be
+-- run after the app that fills the column is deployed.
 
 alter table public.requests
   add column unit_price numeric(10,2);
-
--- The request form submits with the publishable key, so this insert arrives as
--- `anon`: unit_price is browser input like every other column here, and 0003's
--- rule of demanding the money columns be null cannot work for a column the
--- submission must actually fill. Re-derive the price instead of trusting it --
--- the row is only accepted when the submitted price equals the active product's
--- real one, so a hand-crafted POST cannot name its own price. An unknown,
--- inactive or unpriced product makes the subquery NULL, and a NULL with-check
--- fails closed. Non-catalog requests keep the quote flow and carry no price.
---
--- Deliberate consequence: if a product's price changes between the server
--- action's lookup and its insert, the insert fails and the customer sees a
--- generic error. Recording a stale price is the worse outcome, and with a
--- single admin this race is effectively unreachable.
-drop policy "Anon insert requests" on public.requests;
-
-create policy "Anon insert requests" on public.requests
-  for insert to anon, authenticated
-  with check (
-    status = 'received'
-    and quote_design_fee is null
-    and quote_print_fee is null
-    and admin_notes is null
-    and (type <> 'file' or license_accepted)
-    and (
-      case
-        when type = 'catalog' then unit_price = (
-          select p.indicative_price
-            from public.products p
-           where p.id = requests.product_id
-             and p.active
-        )
-        else unit_price is null
-      end
-    )
-  );
 
 -- Recreate get_request_by_token with unit_price in the result. A function's
 -- return table cannot be altered in place: drop + recreate, then re-grant

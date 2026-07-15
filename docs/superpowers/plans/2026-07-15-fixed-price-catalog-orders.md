@@ -26,9 +26,21 @@
 
 **Files:**
 - Create: `supabase/migrations/0006_fixed_price_orders.sql`
+- Create: `supabase/migrations/0007_fixed_price_policy.sql`
 
 **Interfaces:**
-- Produces: `requests.unit_price numeric(10,2) NULL`; `get_request_by_token` result gains a trailing `unit_price` column. Later tasks read `unit_price` from both.
+- Produces: `requests.unit_price numeric(10,2) NULL`; `get_request_by_token` result gains a `unit_price` column. Later tasks read `unit_price` from both.
+
+> **As-built note.** The SQL below is the original draft and is kept for context;
+> the migration files are the source of truth. Two changes were made during
+> implementation:
+> 1. A write guard was added — 0003's `"Anon insert requests"` policy never
+>    mentioned `unit_price`, so anon (which is what the server action runs as,
+>    via the publishable key) could POST any price it liked and bypass the
+>    server-side lookup. `0007` replaces that policy so the database re-derives
+>    the price from the product.
+> 2. That guard ships as a **separate migration** so the rollout has no outage.
+>    See Step 3.
 
 **Note:** `create or replace function` CANNOT change a function's return table — Postgres errors with "cannot change return type of existing function". The function must be dropped and recreated, and grants must be re-issued (they die with the drop).
 
@@ -98,13 +110,36 @@ grant execute on function public.get_request_by_token(uuid) to anon, authenticat
 - [ ] **Step 2: Commit**
 
 ```bash
-git add supabase/migrations/0006_fixed_price_orders.sql
+git add supabase/migrations/0006_fixed_price_orders.sql supabase/migrations/0007_fixed_price_policy.sql
 git commit -m "feat: migration for unit_price snapshot on requests"
 ```
 
-- [ ] **Step 3: STOP — ask the user to run the migration**
+- [ ] **Step 3: Run 0006 whenever you like; 0007 only after the deploy**
 
-Tell the user: "Please run `supabase/migrations/0006_fixed_price_orders.sql` in the Supabase web SQL editor (same as previous migrations), then confirm." Code tasks (2–5) can proceed before confirmation, but Tasks 6–10 change runtime behavior that needs the column and RPC to exist.
+The two files are split precisely so there is **no cutover and no outage**. Run
+them at different times:
+
+- **`0006` — safe to run now, or any time.** It is a no-op against the
+  currently-deployed code: `unit_price` is nullable and today's insert never
+  names it, and the RPC's extra result key is read by name (the status page
+  casts the row to its own `TokenRequest` type), so existing callers ignore it.
+  It must, however, be run **before** the Task 6–10 deploy: Task 6 adds
+  `unit_price` to the insert unconditionally, so shipping that against a missing
+  column breaks *all three* request types, not just catalog.
+- **`0007` — only after the Task 6–10 deploy is live.** It rejects a catalog
+  insert that carries no price, which is exactly what the pre-deploy code sends.
+  Run it early and every catalog order fails until the deploy lands.
+
+Correct sequence (also in the post-implementation checklist): run 0006 → deploy
+Tasks 2–10 → run 0007. Nothing is ever rejected, and the strict invariant still
+lands.
+
+Between the deploy and 0007 the price is briefly forgeable — but that is not a
+regression: that hole is open in production *today*, and it closes the moment
+0007 is pasted. Local dev and production share one Supabase project, so both
+files hit production whenever they are run.
+
+Proceed to Task 2 now.
 
 ---
 
@@ -1061,6 +1096,57 @@ git commit -m "feat: fixed-price copy on catalog and request pages"
 
 ## Post-implementation checklist (user actions)
 
-- Run migration `0006_fixed_price_orders.sql` in the Supabase SQL editor (Task 1, Step 3 — if not already done).
-- In the admin, set a price on every active product (active products without a price are hidden from the order form and can no longer be saved without one).
-- End-to-end smoke test: place a catalog order → confirmation email shows the total → status page shows three chips + price box → admin sees "Prijs & status" and moves it to "Wordt geprint" → "Afgerond" email arrives.
+**Order matters, but there is no outage.** The migrations are split so each one
+is safe at its own moment: `0006` is a no-op against the old code, `0007` is the
+tightening that only the new code can satisfy. Do these in sequence:
+
+1. **Set a price on every active product** in the admin. Pure data entry, safe
+   to do now — Task 4's validation isn't live yet, and the only visible effect
+   is a price appearing on products that lacked one. Do it first so the
+   unbounded manual part never blocks a later step. Active products without a
+   price will be unsaveable and hidden from the order form once the code ships.
+   (Existing `Testproduct` needs a price or deactivation.)
+2. **Run migration `0006_fixed_price_orders.sql`** in the Supabase web SQL
+   editor. Paste the whole file and run it once — a partial run between the
+   `drop` and the `grant` would briefly leave `get_request_by_token` executable
+   by everyone. This changes nothing for the live site; it just puts the column
+   and the RPC field in place.
+3. Finish Tasks 2–10; confirm `npx vitest run`, `npm run lint` and
+   `npm run build` are all green.
+4. Push to `main` and let Vercel deploy. Catalog orders now record a real
+   `unit_price`.
+5. **Run migration `0007_fixed_price_policy.sql`.** This closes the forgery
+   hole (until now, anon could POST its own price). Do it promptly after the
+   deploy, but nothing is broken in between — that hole is open in production
+   today regardless.
+6. Verify live: place a catalog order → confirmation email shows the total →
+   status page shows three chips + a price box and no akkoord button → admin
+   shows "Prijs & status" → move to "Wordt geprint" → "Afgerond" email arrives.
+7. Verify a file/custom request still gets the full five-step quote flow
+   unchanged.
+
+**If the first order after the deploy fails with `PGRST204 column
+"unit_price" ... does not exist`,** that is PostgREST's schema cache being
+stale, not a broken migration. Supabase's DDL event triggers normally refresh
+it within seconds — wait and retry, or run `notify pgrst, 'reload schema';`.
+Do not revert a migration that worked.
+
+**Rollback.** The `unit_price` column is additive and harmless to leave in
+place; only 0007 changes existing behavior. To restore the old insert rule,
+`git revert` the code and run these two statements together (0003 cannot be
+re-run as a whole — it would re-insert its storage bucket and re-create four
+other policies, all of which error as duplicates):
+
+```sql
+drop policy "Anon insert requests" on public.requests;
+
+create policy "Anon insert requests" on public.requests
+  for insert to anon, authenticated
+  with check (
+    status = 'received'
+    and quote_design_fee is null
+    and quote_print_fee is null
+    and admin_notes is null
+    and (type <> 'file' or license_accepted)
+  );
+```
