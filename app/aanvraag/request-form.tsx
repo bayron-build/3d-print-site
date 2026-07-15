@@ -134,14 +134,23 @@ export function RequestForm({
       material: String(formData.get("material") ?? ""),
       quantity: String(formData.get("quantity") ?? ""),
       licenseAccepted: formData.get("licenseAccepted") === "on",
-      files: files.map((file): FileMeta => ({
-        name: file.name,
-        sizeBytes: file.size,
-      })),
-      photos: photos.map((photo): FileMeta => ({
-        name: photo.name,
-        sizeBytes: photo.size,
-      })),
+      // Only the upload kind matching the active type is sent to validation:
+      // a leftover selection from another type must not block the submit with
+      // an error that never renders (mirrors the uploadTargets scoping below).
+      files:
+        type === "file"
+          ? files.map((file): FileMeta => ({
+              name: file.name,
+              sizeBytes: file.size,
+            }))
+          : [],
+      photos:
+        type === "custom"
+          ? photos.map((photo): FileMeta => ({
+              name: photo.name,
+              sizeBytes: photo.size,
+            }))
+          : [],
     };
     const result = validateRequest(input);
     if (!result.ok) {
