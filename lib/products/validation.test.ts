@@ -20,15 +20,17 @@ function input(overrides: Partial<ProductInput> = {}): ProductInput {
 }
 
 describe("validateProduct", () => {
+  // Inactive: an empty price only survives validation on a draft, so this is
+  // the one shape that still exercises nulling every empty optional.
   it("accepts a minimal product and nulls empty optionals", () => {
-    const result = validateProduct(input());
+    const result = validateProduct(input({ active: false }));
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toEqual({
         name: "Vaas",
         description: null,
         indicativePrice: null,
-        active: true,
+        active: false,
       });
     }
   });
@@ -61,6 +63,46 @@ describe("validateProduct", () => {
     const result = validateProduct(input({ indicativePrice: "abc" }));
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.errors.indicativePrice).toBeDefined();
+  });
+});
+
+describe("validateProduct — fixed price rule", () => {
+  it("rejects an active product without a price", () => {
+    const result = validateProduct({
+      name: "Vaas",
+      description: "",
+      indicativePrice: "",
+      active: true,
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors.indicativePrice).toBe(
+        "Een actief product heeft een vaste prijs nodig."
+      );
+    }
+  });
+
+  it("allows an inactive product without a price", () => {
+    const result = validateProduct({
+      name: "Vaas",
+      description: "",
+      indicativePrice: "",
+      active: false,
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  it("allows an active product with a price", () => {
+    const result = validateProduct({
+      name: "Vaas",
+      description: "",
+      indicativePrice: "12,50",
+      active: true,
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.indicativePrice).toBe(12.5);
+    }
   });
 });
 

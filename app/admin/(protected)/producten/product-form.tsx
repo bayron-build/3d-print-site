@@ -46,7 +46,7 @@ export function ProductForm({
         <Textarea name="description" rows={5} defaultValue={initial.description} />
       </Field>
 
-      <Field label="Richtprijs (€, optioneel)" error={errors.indicativePrice}>
+      <Field label="Prijs (€ — verplicht als het product actief is)" error={errors.indicativePrice}>
         <Input
           type="text"
           name="indicativePrice"

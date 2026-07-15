@@ -41,6 +41,10 @@ export function validateProduct(input: ProductInput): ProductValidationResult {
   if (!price.ok) {
     errors.indicativePrice =
       "Vul een geldig bedrag in (bijv. 12,50) of laat leeg.";
+  } else if (input.active && price.value === null) {
+    // Fixed-price ordering: the customer pays this amount, so an active
+    // (orderable) product must have one. Inactive drafts may stay empty.
+    errors.indicativePrice = "Een actief product heeft een vaste prijs nodig.";
   }
 
   if (Object.keys(errors).length > 0) {
