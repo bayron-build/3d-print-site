@@ -50,7 +50,7 @@ export default async function RequestPage({
             Aanvraag indienen
           </h1>
           <p className="mt-2 text-slate-600">
-            Vertel ons wat je wilt laten printen. Je ontvangt per e-mail een
+            Vertel ons wat je wilt laten printen. Je ontvangt een
             prijsvoorstel — je betaalt pas na akkoord.
           </p>
         </div>
@@ -87,7 +87,7 @@ function RequestSidebar() {
           {(
             [
               ["Contact", IconChat],
-              ["Offerte per e-mail", IconClipboard],
+              ["Offerte op maat", IconClipboard],
               ["Printen na jouw akkoord", IconPrinter],
               ["Ophalen of bezorgen", IconTruck],
             ] as const
@@ -110,7 +110,7 @@ function RequestSidebar() {
         <h2 className="font-semibold text-slate-900">Goed om te weten</h2>
         <ul className="mt-3 flex flex-col gap-2 text-sm text-slate-600">
           <li>Je betaalt pas nadat je akkoord bent gegaan met de offerte.</li>
-          <li>Je krijgt meestal binnen 1–2 dagen antwoord per e-mail.</li>
+          <li>Je krijgt meestal binnen 1–2 dagen antwoord.</li>
           <li>Betalen kan per bankoverschrijving of Tikkie.</li>
         </ul>
         <p className="mt-3 text-sm text-slate-600">

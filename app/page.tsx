@@ -17,11 +17,13 @@ import {
 import dragon from "@/public/images/dragon.jpg";
 import heroPrinter from "@/public/images/hero-printer-dark.jpg";
 
-// Matches the real pipeline: manual quote by email, Akkoord on the status
-// page, pickup with bank transfer/Tikkie.
+// Matches the real pipeline: manual quote, Akkoord on the status page,
+// pickup with bank transfer/Tikkie. The quote link is currently shared
+// personally (e.g. WhatsApp) until a verified email domain exists, so the
+// public copy stays channel-neutral.
 const STEPS = [
   ["Contact", "Stuur je idee, bestand of aanvraag via het formulier.", IconChat],
-  ["Offerte", "Je ontvangt per e-mail een prijsvoorstel.", IconClipboard],
+  ["Offerte", "Je ontvangt een prijsvoorstel met een persoonlijke link.", IconClipboard],
   ["Printen", "Na jouw akkoord wordt je opdracht met zorg geprint.", IconPrinter],
   ["Levering", "Ophalen of bezorgen; betalen per bankoverschrijving of Tikkie.", IconTruck],
 ] as const;

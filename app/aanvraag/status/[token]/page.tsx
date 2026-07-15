@@ -5,6 +5,7 @@ import { formatEuro } from "@/lib/format";
 import { STATUS_LABELS, type RequestStatus } from "@/lib/requests/status";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { SITE_EMAIL } from "@/lib/site";
 import { AkkoordButton } from "./akkoord-button";
 
 // Private-by-token page: never let a shared or leaked link end up in a
@@ -103,8 +104,12 @@ export default async function StatusPage({
       <section className="mt-6">
         {status === "rejected" ? (
           <p className="rounded-lg bg-red-50 px-4 py-3 text-red-800">
-            Deze aanvraag is helaas afgewezen. Vragen? Beantwoord de e-mail
-            die je van ons kreeg.
+            Deze aanvraag is helaas afgewezen. Vragen? Neem contact met ons op
+            via{" "}
+            <a href={`mailto:${SITE_EMAIL}`} className="font-medium underline">
+              {SITE_EMAIL}
+            </a>
+            .
           </p>
         ) : (
           <ol className="flex flex-wrap gap-2">
