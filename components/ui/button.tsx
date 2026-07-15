@@ -10,8 +10,9 @@ const VARIANTS = {
   secondary:
     "border border-slate-300 bg-white text-slate-700 hover:border-violet-400 hover:text-violet-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-violet-500 dark:hover:text-violet-300",
   danger: "bg-red-600 text-white hover:bg-red-500",
-  // Ghost outline for dark surfaces (homepage hero secondary CTA).
-  "inverse-outline": "border border-white/40 text-white hover:bg-white/10",
+  // Ghost outline for dark surfaces (homepage hero secondary CTA): a faint
+  // resting fill + stronger border so it doesn't recede into the photo.
+  "inverse-outline": "border border-white/60 bg-white/5 text-white hover:bg-white/15",
   "danger-outline":
     "border border-red-300 bg-white text-red-700 hover:bg-red-50 dark:border-red-500/40 dark:bg-transparent dark:text-red-400 dark:hover:bg-red-500/10",
 } as const;

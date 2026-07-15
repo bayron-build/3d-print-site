@@ -150,11 +150,15 @@ export default async function Home() {
                   Custom ontwerp aanvragen →
                 </ButtonLink>
               </div>
-              <Image
-                src={dragon}
-                alt="3D-geprinte paarse draak"
-                className="hidden w-28 rounded-lg sm:block"
-              />
+              {/* The JPG has a baked-in white background; a deliberate white
+                  photo frame turns that from glitch into feature. */}
+              <div className="hidden shrink-0 rounded-xl bg-white p-3 shadow-md sm:block">
+                <Image
+                  src={dragon}
+                  alt="3D-geprinte paarse draak"
+                  className="w-28 rounded-md"
+                />
+              </div>
             </div>
           </div>
         </section>

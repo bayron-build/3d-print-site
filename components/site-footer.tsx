@@ -4,11 +4,11 @@ import { SITE_BYLINE, SITE_EMAIL, SITE_NAME, SITE_TAGLINE } from "@/lib/site";
 
 // Links only to pages that exist — no dead FAQ/privacy links (spec).
 // Carries the site's contact block; header/homepage "#contact" links land here.
-// Soft charcoal (slate-900, muted text) so the page ends grounded without
-// the harsh contrast of a near-black block.
+// slate-950 so both dark bookends match the header/hero; the top border
+// keeps the structural edge against light page content.
 export function SiteFooter() {
   return (
-    <footer id="contact" className="border-t border-slate-800 bg-slate-900">
+    <footer id="contact" className="border-t border-slate-800 bg-slate-950">
       <div className="mx-auto grid w-full max-w-[88rem] gap-10 px-6 py-12 sm:grid-cols-3">
         <div className="flex max-w-xs flex-col gap-3">
           <span className="flex items-center gap-2">
