@@ -1,6 +1,12 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import {
+  useActionState,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { IconPencil, IconUpload } from "@/components/ui/icons";
@@ -9,6 +15,7 @@ import { formatEuro, formatFileSize } from "@/lib/format";
 import { createClient } from "@/lib/supabase/client";
 import {
   MAX_FILES,
+  MAX_PHOTOS,
   sanitizeFileName,
   validateRequest,
   type FileMeta,
@@ -72,6 +79,23 @@ export function RequestForm({
     preselectedProductId ? "catalog" : initialType || "file"
   );
   const [files, setFiles] = useState<File[]>([]);
+  const [photos, setPhotos] = useState<File[]>([]);
+
+  // Object URLs for the thumbnails, derived from the current selection.
+  const photoPreviews = useMemo(
+    () => photos.map((photo) => URL.createObjectURL(photo)),
+    [photos]
+  );
+
+  // Revoke the URLs when the selection changes or the form unmounts, so
+  // replaced previews don't leak blobs.
+  useEffect(() => {
+    return () => {
+      for (const url of photoPreviews) {
+        URL.revokeObjectURL(url);
+      }
+    };
+  }, [photoPreviews]);
   const [clientError, setClientError] = useState<string | null>(null);
   const [clientErrors, setClientErrors] = useState<Record<
     string,
@@ -114,7 +138,10 @@ export function RequestForm({
         name: file.name,
         sizeBytes: file.size,
       })),
-      photos: [],
+      photos: photos.map((photo): FileMeta => ({
+        name: photo.name,
+        sizeBytes: photo.size,
+      })),
     };
     const result = validateRequest(input);
     if (!result.ok) {
@@ -122,11 +149,15 @@ export function RequestForm({
       return;
     }
 
+    // Custom requests upload reference photos through the same pipeline as
+    // model files: same bucket, same groupId folder, same metadata field.
     let uploaded: UploadedFile[] = [];
-    if (type === "file") {
+    const uploadTargets =
+      type === "file" ? files : type === "custom" ? photos : [];
+    if (uploadTargets.length > 0) {
       setIsUploading(true);
       try {
-        uploaded = await uploadFiles(files);
+        uploaded = await uploadFiles(uploadTargets);
       } catch {
         setClientError(
           "Uploaden mislukt, controleer je verbinding en probeer het opnieuw."
@@ -283,6 +314,61 @@ export function RequestForm({
         >
           <Textarea name="description" rows={4} />
         </Field>
+
+        {type === "custom" && (
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-medium text-slate-700">
+              Foto&apos;s ter referentie (optioneel)
+            </span>
+            {/* Deliberately no `name`: the bytes must never end up in the
+                FormData the server action receives. */}
+            <label className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-6 py-8 text-center transition-colors hover:border-violet-400 hover:bg-violet-50">
+              <IconUpload className="h-8 w-8 text-violet-600" />
+              <span className="text-sm font-medium text-slate-700">
+                Kies foto&apos;s
+              </span>
+              <span className="text-xs text-slate-500">
+                Max {MAX_PHOTOS} foto&apos;s · .jpg, .png, .webp · max 10MB
+                per stuk
+              </span>
+              <input
+                type="file"
+                multiple
+                accept=".jpg,.jpeg,.png,.webp"
+                onChange={(event) =>
+                  setPhotos(Array.from(event.target.files ?? []))
+                }
+                className="sr-only"
+              />
+            </label>
+            {photos.length > 0 && (
+              <ul className="flex flex-wrap gap-3">
+                {photos.map((photo, index) => (
+                  <li key={photo.name} className="flex w-28 flex-col gap-1">
+                    {photoPreviews[index] && (
+                      // Blob URL preview; next/image can't optimize blobs.
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={photoPreviews[index]}
+                        alt={photo.name}
+                        className="h-24 w-28 rounded-lg border border-slate-200 object-cover"
+                      />
+                    )}
+                    <span className="truncate text-xs text-slate-900">
+                      {photo.name}
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      {formatFileSize(photo.size)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {errors.photos && (
+              <p className="text-sm text-red-600">{errors.photos}</p>
+            )}
+          </div>
+        )}
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Kleur (optioneel)">
