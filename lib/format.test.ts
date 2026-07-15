@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatEuro, formatFileSize } from "./format";
+import { formatEuro, formatFileSize, toAmount } from "./format";
 
 describe("formatEuro", () => {
   it("formats numbers Dutch-style with two decimals", () => {
@@ -24,5 +24,19 @@ describe("formatFileSize", () => {
   it("formats sub-MB sizes as KB, minimum 1", () => {
     expect(formatFileSize(512 * 1024)).toBe("512 KB");
     expect(formatFileSize(10)).toBe("1 KB");
+  });
+});
+
+describe("toAmount", () => {
+  it("passes numbers through", () => {
+    expect(toAmount(12.5)).toBe(12.5);
+  });
+
+  it("parses the string form Postgres numeric arrives in", () => {
+    expect(toAmount("7.25")).toBe(7.25);
+  });
+
+  it("treats null as zero", () => {
+    expect(toAmount(null)).toBe(0);
   });
 });

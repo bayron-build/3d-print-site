@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { formatEuro } from "@/lib/format";
+import { formatEuro, toAmount } from "@/lib/format";
 import { STATUS_LABELS, type RequestStatus } from "@/lib/requests/status";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -55,11 +55,6 @@ function formatDate(value: string): string {
     month: "long",
     year: "numeric",
   });
-}
-
-function toAmount(value: number | string | null): number {
-  if (value === null) return 0;
-  return typeof value === "string" ? Number.parseFloat(value) : value;
 }
 
 export default async function StatusPage({

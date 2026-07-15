@@ -15,3 +15,10 @@ export function formatFileSize(bytes: number): string {
   if (mb >= 1) return `${mb.toFixed(1)} MB`;
   return `${Math.max(1, Math.round(bytes / 1024))} KB`;
 }
+
+// Postgres numeric(10,2) arrives as string or number depending on the
+// driver; normalise before any arithmetic. Null (no value) counts as zero.
+export function toAmount(value: number | string | null): number {
+  if (value === null) return 0;
+  return typeof value === "string" ? Number.parseFloat(value) : value;
+}

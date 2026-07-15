@@ -2,7 +2,7 @@
 // so each is unit-testable. Callers supply the absolute status-page URL;
 // lib/email/notifications.ts builds it and hands the result to the transport.
 
-import { formatEuro } from "@/lib/format";
+import { formatEuro, toAmount } from "@/lib/format";
 import type { RequestStatus } from "@/lib/requests/status";
 
 export type EmailContent = { subject: string; html: string };
@@ -56,11 +56,6 @@ export type QuoteEmailInput = {
   printFee: number | string | null;
   statusUrl: string;
 };
-
-function toAmount(value: number | string | null): number {
-  if (value === null) return 0;
-  return typeof value === "string" ? Number.parseFloat(value) : value;
-}
 
 export function quoteEmail(input: QuoteEmailInput): EmailContent {
   const lines: string[] = [];
