@@ -28,14 +28,43 @@ function statusLink(statusUrl: string, label: string): string {
   return `<a href="${statusUrl}" style="color:#1d4ed8;">${label}</a>`;
 }
 
+// Fixed-price catalog orders put the price in the confirmation itself: the
+// customer never gets a quote email, so this is their written price.
+export type OrderSummary = {
+  unitPrice: number | string;
+  quantity: number;
+};
+
 export type ConfirmationEmailInput = {
   customerName: string;
   statusUrl: string;
+  order?: OrderSummary;
 };
 
 export function confirmationEmail(
   input: ConfirmationEmailInput
 ): EmailContent {
+  if (input.order) {
+    const total = toAmount(input.order.unitPrice) * input.order.quantity;
+    return {
+      subject: "We hebben je bestelling ontvangen",
+      html: layout([
+        `Beste ${escapeHtml(input.customerName)},`,
+        "Bedankt voor je bestelling! We hebben hem in goede orde ontvangen.",
+        [
+          `Prijs per stuk: ${formatEuro(input.order.unitPrice)}`,
+          `Aantal: ${input.order.quantity}`,
+          `<strong>Totaal: ${formatEuro(total)}</strong>`,
+        ].join("<br>"),
+        "Dit is een vaste prijs — je hoeft geen offerte af te wachten. Betalen kan bij het ophalen, per bankoverschrijving of Tikkie.",
+        `Via jouw persoonlijke pagina kun je de bestelling volgen: ${statusLink(
+          input.statusUrl,
+          "volg je bestelling"
+        )}.`,
+      ]),
+    };
+  }
+
   return {
     subject: "We hebben je aanvraag ontvangen",
     html: layout([

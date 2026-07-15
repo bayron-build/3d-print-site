@@ -4,7 +4,11 @@
 
 import type { RequestStatus } from "@/lib/requests/status";
 import { sendEmail } from "./send";
-import { confirmationEmail, emailForStatusChange } from "./templates";
+import {
+  confirmationEmail,
+  emailForStatusChange,
+  type OrderSummary,
+} from "./templates";
 
 // Absolute link for emails: Vercel's deploy URL in production,
 // http://localhost:3000 locally.
@@ -17,10 +21,12 @@ export async function sendConfirmationEmail(input: {
   to: string;
   customerName: string;
   accessToken: string;
+  order?: OrderSummary;
 }): Promise<void> {
   const { subject, html } = confirmationEmail({
     customerName: input.customerName,
     statusUrl: statusPageUrl(input.accessToken),
+    order: input.order,
   });
   await sendEmail({ to: input.to, subject, html });
 }

@@ -39,6 +39,41 @@ describe("confirmationEmail", () => {
   });
 });
 
+describe("confirmationEmail — fixed-price order", () => {
+  const order = { unitPrice: "12.50", quantity: 3 };
+
+  it("shows unit price, quantity and total", () => {
+    const email = confirmationEmail({
+      customerName: "Jan",
+      statusUrl: STATUS_URL,
+      order,
+    });
+    expect(email.subject).toBe("We hebben je bestelling ontvangen");
+    expect(email.html).toContain("€ 12,50");
+    expect(email.html).toContain("Aantal: 3");
+    expect(email.html).toContain("€ 37,50");
+    expect(email.html).toContain(STATUS_URL);
+  });
+
+  it("does not promise a quote", () => {
+    const email = confirmationEmail({
+      customerName: "Jan",
+      statusUrl: STATUS_URL,
+      order,
+    });
+    expect(email.html).not.toContain("prijsvoorstel");
+  });
+
+  it("keeps the quote-flow wording when there is no order", () => {
+    const email = confirmationEmail({
+      customerName: "Jan",
+      statusUrl: STATUS_URL,
+    });
+    expect(email.subject).toBe("We hebben je aanvraag ontvangen");
+    expect(email.html).toContain("prijsvoorstel");
+  });
+});
+
 describe("quoteEmail", () => {
   it("shows both fees, the total, and the status link", () => {
     const email = quoteEmail(quoteInput());
