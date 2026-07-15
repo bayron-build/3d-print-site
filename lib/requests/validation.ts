@@ -12,6 +12,17 @@ export const MAX_FILES = 5;
 export const MAX_FILE_SIZE_BYTES = 52428800; // 50MB
 export const ALLOWED_EXTENSIONS = [".stl", ".3mf", ".step", ".stp"] as const;
 
+export const MAX_PHOTOS = 5;
+// Same 10MB cap as product photos; well under the bucket's 50MB limit,
+// which stays the server-enforced boundary.
+export const MAX_PHOTO_SIZE_BYTES = 10485760; // 10MB
+export const ALLOWED_PHOTO_EXTENSIONS = [
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".webp",
+] as const;
+
 // Metadata-only view of a file: fits both browser File objects and the
 // upload records the server action receives.
 export type FileMeta = {
@@ -32,6 +43,7 @@ export type RequestInput = {
   quantity: string;
   licenseAccepted: boolean;
   files: FileMeta[];
+  photos: FileMeta[];
 };
 
 // Cleaned values ready for the requests-table insert.
@@ -102,6 +114,27 @@ export function validateRequest(input: RequestInput): ValidationResult {
       errors.licenseAccepted =
         "Bevestig dat je het ontwerp mag (laten) printen.";
     }
+    if (input.photos.length > 0) {
+      errors.photos = "Foto's horen niet bij dit type aanvraag.";
+    }
+  }
+
+  // Reference photos are a custom-only feature. The client only ever sends
+  // the matching upload kind; these rejections only hit hand-crafted POSTs.
+  if (type === "custom") {
+    const photoError = validatePhotos(input.photos);
+    if (photoError) {
+      errors.photos = photoError;
+    }
+  }
+
+  if (type === "catalog") {
+    if (input.files.length > 0) {
+      errors.files = "Bestanden horen niet bij dit type aanvraag.";
+    }
+    if (input.photos.length > 0) {
+      errors.photos = "Foto's horen niet bij dit type aanvraag.";
+    }
   }
 
   if (Object.keys(errors).length > 0) {
@@ -146,6 +179,29 @@ export function validateFiles(files: FileMeta[]): string | null {
 export function hasAllowedExtension(fileName: string): boolean {
   const lower = fileName.toLowerCase();
   return ALLOWED_EXTENSIONS.some((ext) => lower.endsWith(ext));
+}
+
+// Photos are optional on custom requests: zero photos is valid.
+export function validatePhotos(photos: FileMeta[]): string | null {
+  if (photos.length > MAX_PHOTOS) {
+    return `Maximaal ${MAX_PHOTOS} foto's per aanvraag.`;
+  }
+  for (const photo of photos) {
+    if (!isImageFileName(photo.name)) {
+      return `"${photo.name}" is geen ondersteund fototype (${ALLOWED_PHOTO_EXTENSIONS.join(", ")}).`;
+    }
+    if (photo.sizeBytes > MAX_PHOTO_SIZE_BYTES) {
+      return `"${photo.name}" is groter dan 10MB.`;
+    }
+  }
+  return null;
+}
+
+// Doubles as the admin detail page's thumbnail-vs-download-row switch:
+// an upload is a photo purely by extension (spec: no kind column).
+export function isImageFileName(fileName: string): boolean {
+  const lower = fileName.toLowerCase();
+  return ALLOWED_PHOTO_EXTENSIONS.some((ext) => lower.endsWith(ext));
 }
 
 // A real visitor never sees the honeypot field; any content means a bot.

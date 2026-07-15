@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   hasAllowedExtension,
+  isImageFileName,
   isSpam,
   sanitizeFileName,
   validateFiles,
+  validatePhotos,
   validateRequest,
   type RequestInput,
 } from "./validation";
@@ -22,11 +24,13 @@ function input(overrides: Partial<RequestInput> = {}): RequestInput {
     quantity: "1",
     licenseAccepted: false,
     files: [],
+    photos: [],
     ...overrides,
   };
 }
 
 const stlFile = { name: "model.stl", sizeBytes: 1024 };
+const jpgPhoto = { name: "voorbeeld.jpg", sizeBytes: 1024 };
 
 describe("validateRequest", () => {
   it("accepts a valid custom request", () => {
@@ -138,6 +142,48 @@ describe("validateRequest", () => {
       expect(result.data.productId).toBeNull();
     }
   });
+
+  it("accepts a custom request with valid photos", () => {
+    const result = validateRequest(input({ photos: [jpgPhoto] }));
+    expect(result.ok).toBe(true);
+  });
+
+  it("rejects a custom request with invalid photos under the photos key", () => {
+    const result = validateRequest(
+      input({ photos: Array(6).fill(jpgPhoto) })
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.photos).toBeDefined();
+  });
+
+  it("rejects catalog requests that carry files or photos", () => {
+    const result = validateRequest(
+      input({
+        type: "catalog",
+        productId: "abc-123",
+        files: [stlFile],
+        photos: [jpgPhoto],
+      })
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors.files).toBeDefined();
+      expect(result.errors.photos).toBeDefined();
+    }
+  });
+
+  it("rejects file requests that carry photos", () => {
+    const result = validateRequest(
+      input({
+        type: "file",
+        files: [stlFile],
+        licenseAccepted: true,
+        photos: [jpgPhoto],
+      })
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.photos).toBeDefined();
+  });
 });
 
 describe("validateFiles", () => {
@@ -203,5 +249,54 @@ describe("hasAllowedExtension", () => {
   it("matches allowed extensions case-insensitively", () => {
     expect(hasAllowedExtension("a.STL")).toBe(true);
     expect(hasAllowedExtension("a.pdf")).toBe(false);
+  });
+});
+
+describe("validatePhotos", () => {
+  it("accepts zero photos (photos are optional)", () => {
+    expect(validatePhotos([])).toBeNull();
+  });
+
+  it("accepts 1 to 5 valid photos", () => {
+    expect(validatePhotos([jpgPhoto])).toBeNull();
+    expect(validatePhotos(Array(5).fill(jpgPhoto))).toBeNull();
+  });
+
+  it("rejects more than 5 photos", () => {
+    expect(validatePhotos(Array(6).fill(jpgPhoto))).not.toBeNull();
+  });
+
+  it("rejects unsupported extensions", () => {
+    expect(
+      validatePhotos([{ name: "foto.heic", sizeBytes: 10 }])
+    ).not.toBeNull();
+    expect(
+      validatePhotos([{ name: "geen-extensie", sizeBytes: 10 }])
+    ).not.toBeNull();
+  });
+
+  it("accepts all allowed extensions case-insensitively", () => {
+    expect(validatePhotos([{ name: "A.JPG", sizeBytes: 10 }])).toBeNull();
+    expect(validatePhotos([{ name: "b.jpeg", sizeBytes: 10 }])).toBeNull();
+    expect(validatePhotos([{ name: "c.PNG", sizeBytes: 10 }])).toBeNull();
+    expect(validatePhotos([{ name: "d.webp", sizeBytes: 10 }])).toBeNull();
+  });
+
+  it("rejects photos over 10MB but accepts exactly 10MB", () => {
+    expect(
+      validatePhotos([{ name: "groot.jpg", sizeBytes: 10485761 }])
+    ).not.toBeNull();
+    expect(
+      validatePhotos([{ name: "rand.jpg", sizeBytes: 10485760 }])
+    ).toBeNull();
+  });
+});
+
+describe("isImageFileName", () => {
+  it("matches image extensions case-insensitively", () => {
+    expect(isImageFileName("foto.JPG")).toBe(true);
+    expect(isImageFileName("0-scan.webp")).toBe(true);
+    expect(isImageFileName("model.stl")).toBe(false);
+    expect(isImageFileName("doc.pdf")).toBe(false);
   });
 });

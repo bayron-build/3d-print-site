@@ -114,6 +114,7 @@ export function RequestForm({
         name: file.name,
         sizeBytes: file.size,
       })),
+      photos: [],
     };
     const result = validateRequest(input);
     if (!result.ok) {

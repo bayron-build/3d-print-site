@@ -53,6 +53,7 @@ export async function submitRequest(
         sizeBytes: file.sizeBytes,
       })
     ),
+    photos: [],
   });
 
   if (!result.ok) {
