@@ -36,8 +36,19 @@ export async function submitRequest(
     return { errors: { form: GENERIC_ERROR } };
   }
 
+  const type = String(formData.get("type") ?? "");
+  const uploadMeta = uploadedFiles.map(
+    (file): FileMeta => ({
+      name: file.originalName,
+      sizeBytes: file.sizeBytes,
+    })
+  );
+
+  // Custom uploads are reference photos, file uploads are 3D models; catalog
+  // must have neither. Validation rejects uploads under the wrong key, so a
+  // hand-crafted POST can't smuggle files onto the wrong request type.
   const result = validateRequest({
-    type: String(formData.get("type") ?? ""),
+    type,
     customerName: String(formData.get("customerName") ?? ""),
     email: String(formData.get("email") ?? ""),
     phone: String(formData.get("phone") ?? ""),
@@ -47,13 +58,8 @@ export async function submitRequest(
     material: String(formData.get("material") ?? ""),
     quantity: String(formData.get("quantity") ?? ""),
     licenseAccepted: formData.get("licenseAccepted") === "on",
-    files: uploadedFiles.map(
-      (file): FileMeta => ({
-        name: file.originalName,
-        sizeBytes: file.sizeBytes,
-      })
-    ),
-    photos: [],
+    files: type === "custom" ? [] : uploadMeta,
+    photos: type === "custom" ? uploadMeta : [],
   });
 
   if (!result.ok) {
@@ -89,7 +95,9 @@ export async function submitRequest(
     return { errors: { form: GENERIC_ERROR } };
   }
 
-  if (result.data.type === "file") {
+  // Photos (custom) and model files (file) share the request_files table;
+  // validation has already confirmed uploads match the request type.
+  if (uploadedFiles.length > 0) {
     const { error: filesError } = await supabase.from("request_files").insert(
       uploadedFiles.map((file) => ({
         request_id: requestId,
