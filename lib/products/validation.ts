@@ -39,8 +39,11 @@ export function validateProduct(input: ProductInput): ProductValidationResult {
 
   const price = parseFee(input.indicativePrice);
   if (!price.ok) {
-    errors.indicativePrice =
-      "Vul een geldig bedrag in (bijv. 12,50) of laat leeg.";
+    // Never offer an active product the "laat leeg" escape: clearing the field
+    // only trades this error for the required-price one below.
+    errors.indicativePrice = input.active
+      ? "Vul een geldig bedrag in (bijv. 12,50)."
+      : "Vul een geldig bedrag in (bijv. 12,50) of laat leeg.";
   } else if (input.active && price.value === null) {
     // Fixed-price ordering: the customer pays this amount, so an active
     // (orderable) product must have one. Inactive drafts may stay empty.

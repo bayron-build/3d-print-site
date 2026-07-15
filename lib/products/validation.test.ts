@@ -62,7 +62,13 @@ describe("validateProduct", () => {
   it("rejects an invalid price but keeps other fields' errors independent", () => {
     const result = validateProduct(input({ indicativePrice: "abc" }));
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.errors.indicativePrice).toBeDefined();
+    if (!result.ok) {
+      // input() is active, so this is the active variant of the message.
+      expect(result.errors.indicativePrice).toBe(
+        "Vul een geldig bedrag in (bijv. 12,50)."
+      );
+      expect(result.errors.name).toBeUndefined();
+    }
   });
 });
 
@@ -102,6 +108,40 @@ describe("validateProduct — fixed price rule", () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data.indicativePrice).toBe(12.5);
+      expect(result.data.active).toBe(true);
+    }
+  });
+
+  // The two invalid-price messages differ by design: "of laat leeg" is only
+  // true for an inactive draft, so an active product must not be offered that
+  // escape. Both branches are pinned — the split is the whole point.
+  it("omits the 'laat leeg' escape from an active product's invalid-price error", () => {
+    const result = validateProduct({
+      name: "Vaas",
+      description: "",
+      indicativePrice: "abc",
+      active: true,
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors.indicativePrice).toBe(
+        "Vul een geldig bedrag in (bijv. 12,50)."
+      );
+    }
+  });
+
+  it("keeps the 'laat leeg' escape for an inactive product's invalid-price error", () => {
+    const result = validateProduct({
+      name: "Vaas",
+      description: "",
+      indicativePrice: "abc",
+      active: false,
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors.indicativePrice).toBe(
+        "Vul een geldig bedrag in (bijv. 12,50) of laat leeg."
+      );
     }
   });
 });
