@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { IconPencil, IconUpload } from "@/components/ui/icons";
 import { CubeLogo } from "@/components/site-header";
-import { formatEuro, formatFileSize } from "@/lib/format";
+import { formatEuro, formatFileSize, toAmount } from "@/lib/format";
 import { createClient } from "@/lib/supabase/client";
 import {
   MAX_FILES,
@@ -30,7 +30,7 @@ import {
 export type ProductOption = {
   id: string;
   name: string;
-  indicative_price: number | null;
+  indicative_price: number | string | null;
 };
 
 export type FormType = "catalog" | "file" | "custom";
@@ -78,6 +78,8 @@ export function RequestForm({
   const [type, setType] = useState<FormType>(
     preselectedProductId ? "catalog" : initialType || "file"
   );
+  const [productId, setProductId] = useState(preselectedProductId);
+  const [quantity, setQuantity] = useState("1");
   const [files, setFiles] = useState<File[]>([]);
   const [photos, setPhotos] = useState<File[]>([]);
 
@@ -108,6 +110,21 @@ export function RequestForm({
   // Client validation errors take precedence: they reflect the latest submit
   // attempt before the action round-trips.
   const errors = clientErrors ?? state.errors ?? {};
+
+  // Live fixed-price panel for catalog orders. Quantity mirrors the shared
+  // validation's rules (integer >= 1); anything else previews as 1 piece.
+  // Display only — the charged price is looked up server-side, never sent.
+  const selectedProduct =
+    type === "catalog"
+      ? products.find((product) => product.id === productId)
+      : undefined;
+  const unitPrice =
+    selectedProduct && selectedProduct.indicative_price !== null
+      ? toAmount(selectedProduct.indicative_price)
+      : null;
+  const parsedQuantity = Number.parseInt(quantity, 10);
+  const previewQuantity =
+    Number.isInteger(parsedQuantity) && parsedQuantity >= 1 ? parsedQuantity : 1;
 
   // Submit is intercepted so uploads can happen BEFORE the server action
   // runs: file bytes go browser → storage, only their metadata rides along
@@ -252,18 +269,39 @@ export function RequestForm({
         </h2>
 
         {type === "catalog" && (
-          <Field label="Product" error={errors.productId}>
-            <Select name="productId" defaultValue={preselectedProductId}>
-              <option value="">— Kies een product —</option>
-              {products.map((product) => (
-                <option key={product.id} value={product.id}>
-                  {product.name}
-                  {product.indicative_price !== null &&
-                    ` (richtprijs ${formatEuro(product.indicative_price)})`}
-                </option>
-              ))}
-            </Select>
-          </Field>
+          <>
+            <Field label="Product" error={errors.productId}>
+              <Select
+                name="productId"
+                value={productId}
+                onChange={(event) => setProductId(event.target.value)}
+              >
+                <option value="">— Kies een product —</option>
+                {products.map((product) => (
+                  <option key={product.id} value={product.id}>
+                    {product.name}
+                    {product.indicative_price !== null &&
+                      ` (${formatEuro(product.indicative_price)})`}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+
+            {unitPrice !== null && (
+              <div className="rounded-lg bg-violet-50 px-4 py-3 text-sm">
+                <p className="font-medium text-slate-900">
+                  Vaste prijs: {formatEuro(unitPrice)} per stuk
+                  {previewQuantity > 1 &&
+                    ` — totaal ${formatEuro(unitPrice * previewQuantity)}`}
+                </p>
+                <p className="mt-1 text-slate-600">
+                  Geen offerte nodig: na je bestelling gaan we direct voor je
+                  aan de slag. Betalen kan bij het ophalen, per
+                  bankoverschrijving of Tikkie.
+                </p>
+              </div>
+            )}
+          </>
         )}
 
         {type === "file" && (
@@ -390,7 +428,13 @@ export function RequestForm({
           )}
           {(type === "catalog" || type === "file") && (
             <Field label="Aantal" error={errors.quantity}>
-              <Input type="number" name="quantity" min={1} defaultValue={1} />
+              <Input
+                type="number"
+                name="quantity"
+                min={1}
+                value={quantity}
+                onChange={(event) => setQuantity(event.target.value)}
+              />
             </Field>
           )}
         </div>
