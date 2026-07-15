@@ -70,7 +70,9 @@ export async function submitRequest(
 
   // Fixed-price orders: the server looks the price up itself — a price sent
   // from the browser is never trusted. Unknown, inactive or unpriced products
-  // are rejected; RLS already hides inactive products from anon anyway.
+  // are rejected. The active filter is load-bearing, not just documentation:
+  // RLS hides inactive products from anon, but this action runs with the
+  // caller's cookies, so an admin filling the form would otherwise see them.
   let unitPrice: number | string | null = null;
   if (result.data.type === "catalog") {
     const { data: product, error: productError } = await supabase
@@ -79,7 +81,12 @@ export async function submitRequest(
       .eq("id", result.data.productId!)
       .eq("active", true)
       .maybeSingle();
-    if (productError || !product || product.indicative_price === null) {
+    // A query error is a transport/database failure, not a verdict on the
+    // product: the remedy is retry, not "pick something else".
+    if (productError) {
+      return { errors: { form: GENERIC_ERROR } };
+    }
+    if (!product || product.indicative_price === null) {
       return {
         errors: { productId: "Dit product is momenteel niet te bestellen." },
       };
