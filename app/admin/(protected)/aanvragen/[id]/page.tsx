@@ -6,6 +6,7 @@ import { statusPageUrl } from "@/lib/email/notifications";
 import { Card } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { formatFileSize } from "@/lib/format";
+import { isImageFileName } from "@/lib/requests/validation";
 import { QuoteForm } from "./quote-form";
 import { DeleteButton } from "./delete-button";
 import { CopyStatusLink } from "./copy-status-link";
@@ -154,7 +155,7 @@ export default async function RequestDetailPage({
           )}
         </dl>
 
-        {request.type === "file" && (
+        {(request.type === "file" || request.type === "custom") && (
           <section className="mt-6">
             <h2 className="text-sm font-medium text-slate-600 dark:text-slate-400">Bestanden</h2>
             {filesError ? (
@@ -162,18 +163,38 @@ export default async function RequestDetailPage({
                 Kon bestanden niet laden.
               </p>
             ) : files && files.length > 0 ? (
-              <ul className="mt-2 flex flex-col gap-1 text-sm">
+              <ul className="mt-2 flex flex-col gap-2 text-sm">
                 {files.map((file) => {
                   const url = signedUrls[file.storage_path];
                   return (
-                    <li key={file.id}>
-                      {url ? (
+                    <li key={file.id} className="flex items-center gap-3">
+                      {url && isImageFileName(file.original_name) ? (
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-3"
+                        >
+                          {/* Signed URL expires within the hour, so
+                              next/image's cacheable optimization buys
+                              nothing here. */}
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={url}
+                            alt={file.original_name}
+                            className="h-16 w-16 rounded-lg border border-slate-200 object-cover dark:border-slate-700"
+                          />
+                          <span className="text-violet-700 hover:underline dark:text-violet-400">
+                            {file.original_name}
+                          </span>
+                        </a>
+                      ) : url ? (
                         <a href={url} className="text-violet-700 hover:underline dark:text-violet-400">
                           {file.original_name}
                         </a>
                       ) : (
                         <span>{file.original_name}</span>
-                      )}{" "}
+                      )}
                       <span className="text-slate-500 dark:text-slate-400">
                         ({formatFileSize(file.size_bytes)})
                         {url ? "" : " — download tijdelijk niet beschikbaar"}
