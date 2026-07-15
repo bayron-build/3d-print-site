@@ -68,6 +68,25 @@ export async function submitRequest(
 
   const supabase = await createClient();
 
+  // Fixed-price orders: the server looks the price up itself — a price sent
+  // from the browser is never trusted. Unknown, inactive or unpriced products
+  // are rejected; RLS already hides inactive products from anon anyway.
+  let unitPrice: number | string | null = null;
+  if (result.data.type === "catalog") {
+    const { data: product, error: productError } = await supabase
+      .from("products")
+      .select("indicative_price")
+      .eq("id", result.data.productId!)
+      .eq("active", true)
+      .maybeSingle();
+    if (productError || !product || product.indicative_price === null) {
+      return {
+        errors: { productId: "Dit product is momenteel niet te bestellen." },
+      };
+    }
+    unitPrice = product.indicative_price;
+  }
+
   // Generate the id here instead of reading it back from the insert:
   // PostgREST only returns inserted rows to callers with SELECT permission,
   // and anonymous visitors must never be able to read requests. The access
@@ -89,6 +108,7 @@ export async function submitRequest(
     material: result.data.material,
     quantity: result.data.quantity,
     license_accepted: result.data.licenseAccepted,
+    unit_price: unitPrice,
   });
 
   if (requestError) {
@@ -118,6 +138,10 @@ export async function submitRequest(
     to: result.data.email,
     customerName: result.data.customerName,
     accessToken,
+    order:
+      unitPrice !== null
+        ? { unitPrice, quantity: result.data.quantity }
+        : undefined,
   });
 
   redirect("/aanvraag/verzonden");

@@ -23,11 +23,13 @@ export default async function RequestPage({
   const supabase = await createClient();
 
   // RLS already limits anon to active products; the explicit filter keeps
-  // the intent visible in code too.
+  // the intent visible in code too. Active products predating the fixed-price
+  // rule may still have no price — they must not be orderable until priced.
   const { data: products, error } = await supabase
     .from("products")
     .select("id, name, indicative_price")
     .eq("active", true)
+    .not("indicative_price", "is", null)
     .order("name");
 
   const productList: ProductOption[] = products ?? [];
