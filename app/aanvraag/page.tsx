@@ -90,8 +90,8 @@ function RequestSidebar() {
           {(
             [
               ["Contact", IconChat],
-              ["Offerte op maat", IconClipboard],
-              ["Printen na jouw akkoord", IconPrinter],
+              ["Vaste prijs of offerte", IconClipboard],
+              ["Printen", IconPrinter],
               ["Ophalen of bezorgen", IconTruck],
             ] as const
           ).map(([label, Icon], index) => (

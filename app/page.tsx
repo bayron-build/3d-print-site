@@ -17,14 +17,15 @@ import {
 import dragon from "@/public/images/dragon.jpg";
 import heroPrinter from "@/public/images/hero-printer-dark.jpg";
 
-// Matches the real pipeline: manual quote, Akkoord on the status page,
-// pickup with bank transfer/Tikkie. The quote link is currently shared
-// personally (e.g. WhatsApp) until a verified email domain exists, so the
-// public copy stays channel-neutral.
+// Matches both real pipelines: catalog orders carry a fixed price and skip the
+// quote entirely, while file/custom requests still get a manual quote and an
+// Akkoord on the status page. Both end in pickup with bank transfer/Tikkie.
+// The status link is currently shared personally (e.g. WhatsApp) until a
+// verified email domain exists, so the public copy stays channel-neutral.
 const STEPS = [
   ["Contact", "Stuur je idee, bestand of aanvraag via het formulier.", IconChat],
-  ["Offerte", "Je ontvangt een prijsvoorstel met een persoonlijke link.", IconClipboard],
-  ["Printen", "Na jouw akkoord wordt je opdracht met zorg geprint.", IconPrinter],
+  ["Prijs", "Kant-en-klaar heeft een vaste prijs. Voor eigen werk ontvang je een offerte.", IconClipboard],
+  ["Printen", "We printen je opdracht met zorg — bij eigen werk na jouw akkoord.", IconPrinter],
   ["Levering", "Ophalen of bezorgen; betalen per bankoverschrijving of Tikkie.", IconTruck],
 ] as const;
 
