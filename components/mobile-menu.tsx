@@ -49,7 +49,7 @@ export function MobileMenu() {
             onClick={() => setOpen(false)}
             className="mt-2"
           >
-            Offerte aanvragen
+            Aanvraag indienen
           </ButtonLink>
         </nav>
       )}

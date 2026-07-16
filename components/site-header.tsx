@@ -52,7 +52,7 @@ export function SiteHeader() {
             Below sm the CTA lives inside the menu panel instead — logo +
             CTA + hamburger don't fit a 390px bar. */}
         <ButtonLink href="/aanvraag" className="max-sm:hidden">
-          Offerte aanvragen
+          Aanvraag indienen
         </ButtonLink>
         <MobileMenu />
       </div>
