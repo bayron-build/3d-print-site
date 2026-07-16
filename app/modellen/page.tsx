@@ -12,10 +12,15 @@ export const metadata = {
 export default async function ModelsPage() {
   const supabase = await createClient();
   // RLS limits anon to active products; the filter keeps intent visible.
+  // Active products predating the fixed-price rule may still have no price.
+  // Listing one would offer a "Bestellen" link the order form then drops (it
+  // filters on price too), stranding the customer on an unexplained empty
+  // form -- so hide it here, same posture as /aanvraag.
   const { data: products, error } = await supabase
     .from("products")
     .select("id, name, indicative_price, photos")
     .eq("active", true)
+    .not("indicative_price", "is", null)
     .order("created_at", { ascending: false });
   const productList: ProductSummary[] = products ?? [];
 

@@ -18,8 +18,11 @@ type Product = {
 };
 
 // A malformed id makes Postgres error on the uuid cast; treat every failure
-// mode (error, unknown id, inactive product) as the same Dutch 404 so
-// inactive products' existence never leaks.
+// mode (error, unknown id, inactive product, active-but-unpriced product) as
+// the same Dutch 404 so inactive products' existence never leaks. An unpriced
+// product joins that list because it isn't orderable: the order form filters
+// it out, so its "Bestellen" button would strand the customer on an empty
+// form. Collapsing it into the same 404 keeps that one exit here too.
 // Wrapped in cache() so generateMetadata and the page component share one
 // fetch per request instead of querying twice.
 const getProduct = cache(async (id: string): Promise<Product | null> => {
@@ -29,6 +32,7 @@ const getProduct = cache(async (id: string): Promise<Product | null> => {
     .select("id, name, description, indicative_price, photos")
     .eq("id", id)
     .eq("active", true)
+    .not("indicative_price", "is", null)
     .maybeSingle();
   if (error || !data) return null;
   return data;

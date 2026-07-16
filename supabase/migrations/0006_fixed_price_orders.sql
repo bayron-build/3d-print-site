@@ -3,12 +3,18 @@
 -- before this migration (those keep the old quote flow).
 -- Run once by the OWNER in the Supabase web SQL editor (same workflow as 0001-0005).
 --
--- Safe to run at any time, including well before the code that fills the column
--- ships: the column is nullable and today's insert never names it, and the RPC's
--- extra result key is read by name, so callers that don't know it ignore it. The
--- rule that makes unit_price trustworthy is deliberately NOT here -- it would
--- reject the current code's price-less catalog inserts. It lives in 0007, to be
--- run after the app that fills the column is deployed.
+-- Breaks nothing when run before the code that fills the column ships: the
+-- column is nullable and today's insert never names it, and the RPC's extra
+-- result key is read by name, so callers that don't know it ignore it. The rule
+-- that makes unit_price trustworthy is deliberately NOT here -- it would reject
+-- the current code's price-less catalog inserts. It lives in 0007, to be run
+-- after the app that fills the column is deployed.
+--
+-- Even so, run this immediately before that deploy rather than days ahead. This
+-- migration is a no-op for availability, not for forgeability: it creates the
+-- column, and 0003's insert policy says nothing about unit_price, so until 0007
+-- lands an anon insert can name its own price. 0006 -> deploy -> 0007 in one
+-- sitting keeps that window short. See 0007's header for the (small) impact.
 
 alter table public.requests
   add column unit_price numeric(10,2);

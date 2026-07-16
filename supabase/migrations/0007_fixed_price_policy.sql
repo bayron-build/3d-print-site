@@ -5,8 +5,17 @@
 -- Split out of 0006 for timing, not tidiness: this rule rejects a catalog insert
 -- that carries no price, which is exactly what the pre-deploy code sends. Run it
 -- early and every catalog order on the live site fails until the deploy lands.
--- 0006 alone is a no-op, so the safe sequence is 0006 -> deploy -> 0007, and
--- nothing is ever rejected.
+-- 0006 breaks nothing on its own, so the safe sequence is 0006 -> deploy -> 0007
+-- and nothing is ever rejected.
+--
+-- Run the whole sequence in one sitting. 0006 is a no-op for AVAILABILITY, but
+-- not for FORGEABILITY: it creates unit_price, and 0003's policy says nothing
+-- about that column, so between 0006 and 0007 an anon insert can name its own
+-- price. That gap is opened by 0006 and closed here -- it is new and transient,
+-- not a pre-existing hole. The yield is minor (the forged row never reaches the
+-- server action, sends no email, and anon cannot read back access_token, so it
+-- surfaces only as one obviously mispriced order in the admin queue), so this is
+-- a reason not to dawdle rather than an emergency. Don't leave it open overnight.
 
 -- The request form submits with the publishable key, so this insert arrives as
 -- `anon`: unit_price is browser input like every other column here, and 0003's

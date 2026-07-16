@@ -114,18 +114,21 @@ git add supabase/migrations/0006_fixed_price_orders.sql supabase/migrations/0007
 git commit -m "feat: migration for unit_price snapshot on requests"
 ```
 
-- [ ] **Step 3: Run 0006 whenever you like; 0007 only after the deploy**
+- [ ] **Step 3: Run 0006 just before the deploy; 0007 right after it**
 
 The two files are split precisely so there is **no cutover and no outage**. Run
-them at different times:
+them at different times — but keep those times close together:
 
-- **`0006` — safe to run now, or any time.** It is a no-op against the
-  currently-deployed code: `unit_price` is nullable and today's insert never
-  names it, and the RPC's extra result key is read by name (the status page
-  casts the row to its own `TokenRequest` type), so existing callers ignore it.
-  It must, however, be run **before** the Task 6–10 deploy: Task 6 adds
-  `unit_price` to the insert unconditionally, so shipping that against a missing
-  column breaks *all three* request types, not just catalog.
+- **`0006` — run it immediately before the push, not days ahead.** It is a no-op
+  for *availability* against the currently-deployed code: `unit_price` is
+  nullable and today's insert never names it, and the RPC's extra result key is
+  read by name (the status page casts the row to its own `TokenRequest` type),
+  so existing callers ignore it. Nothing breaks when it lands. It is *not* a
+  no-op for *forgeability*, though: it creates the column, and 0003's policy
+  says nothing about `unit_price`, so from this moment until 0007 an `anon`
+  insert can name its own. It must still be run **before** the Task 6–10 deploy:
+  Task 6 adds `unit_price` to the insert unconditionally, so shipping that
+  against a missing column breaks *all three* request types, not just catalog.
 - **`0007` — only after the Task 6–10 deploy is live.** It rejects a catalog
   insert that carries no price, which is exactly what the pre-deploy code sends.
   Run it early and every catalog order fails until the deploy lands.
@@ -134,10 +137,15 @@ Correct sequence (also in the post-implementation checklist): run 0006 → deplo
 Tasks 2–10 → run 0007. Nothing is ever rejected, and the strict invariant still
 lands.
 
-Between the deploy and 0007 the price is briefly forgeable — but that is not a
-regression: that hole is open in production *today*, and it closes the moment
-0007 is pasted. Local dev and production share one Supabase project, so both
-files hit production whenever they are run.
+Do the whole sequence in one sitting. Between 0006 and 0007 a hand-crafted POST
+can name its own `unit_price` — a new gap this migration pair opens and closes,
+not a pre-existing one, so don't leave it open overnight. The yield is small (a
+forged insert never reaches the server action, which re-derives the price
+itself; it sends no confirmation email, and `anon` cannot read back
+`access_token`, so there is no status link) — one order in the admin queue with
+an obviously wrong price, which you'd reject. It is a reason not to dawdle, not
+an emergency. Local dev and production share one Supabase project, so both files
+hit production whenever they are run.
 
 Proceed to Task 2 now.
 
@@ -1117,28 +1125,37 @@ git commit -m "feat: fixed-price copy on catalog and request pages"
 ## Post-implementation checklist (user actions)
 
 **Order matters, but there is no outage.** The migrations are split so each one
-is safe at its own moment: `0006` is a no-op against the old code, `0007` is the
-tightening that only the new code can satisfy. Do these in sequence:
+is safe at its own moment: `0006` never breaks the old code, `0007` is the
+tightening that only the new code can satisfy. Steps 3–5 belong in **one
+sitting**: 0006 opens a small price-forgery gap that only 0007 closes. Do these
+in sequence:
 
 1. **Set a price on every active product** in the admin. Pure data entry, safe
    to do now — Task 4's validation isn't live yet, and the only visible effect
    is a price appearing on products that lacked one. Do it first so the
-   unbounded manual part never blocks a later step. Active products without a
-   price will be unsaveable and hidden from the order form once the code ships.
-   (Existing `Testproduct` needs a price or deactivation.)
-2. **Run migration `0006_fixed_price_orders.sql`** in the Supabase web SQL
-   editor. Paste the whole file and run it once — a partial run between the
-   `drop` and the `grant` would briefly leave `get_request_by_token` executable
-   by everyone. This changes nothing for the live site; it just puts the column
-   and the RPC field in place.
-3. Finish Tasks 2–10; confirm `npx vitest run`, `npm run lint` and
+   unbounded manual part never blocks a later step. Once the code ships, active
+   products without a price are unsaveable and hidden everywhere a customer
+   could order them (catalog, product page, order form) — so this is how your
+   products stay visible, not a safety precondition. (Existing `Testproduct`
+   needs a price or deactivation.)
+2. Finish Tasks 2–10; confirm `npx vitest run`, `npm run lint` and
    `npm run build` are all green.
+3. **Run migration `0006_fixed_price_orders.sql`** in the Supabase web SQL
+   editor, immediately before the push — not days ahead. Paste the whole file
+   and run it once: a partial run between the `drop` and the `grant` would
+   briefly leave `get_request_by_token` executable by everyone. This breaks
+   nothing on the live site; it just puts the column and the RPC field in place.
+   It must precede the deploy — Task 6 adds `unit_price` to the insert
+   unconditionally, so deploying against a missing column breaks *all three*
+   request types.
 4. Push to `main` and let Vercel deploy. Catalog orders now record a real
    `unit_price`.
-5. **Run migration `0007_fixed_price_policy.sql`.** This closes the forgery
-   hole (until now, anon could POST its own price). Do it promptly after the
-   deploy, but nothing is broken in between — that hole is open in production
-   today regardless.
+5. **Run migration `0007_fixed_price_policy.sql`** in the same sitting as the
+   deploy. Between 0006 and 0007 a hand-crafted POST can name its own
+   `unit_price` — a new gap this migration pair opens and closes, not a
+   pre-existing one. The worst case is one order in your queue with an
+   obviously wrong price (no email is sent, and the sender gets no status
+   link), so it is a "don't leave it open overnight", not an emergency.
 6. Verify live: place a catalog order → confirmation email shows the total →
    status page shows three chips + a price box and no akkoord button → admin
    shows "Prijs & status" → move to "Wordt geprint" → "Afgerond" email arrives.
