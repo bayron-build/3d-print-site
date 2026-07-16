@@ -41,7 +41,7 @@ const TYPE_LABELS: Record<string, string> = {
   custom: "Eigen ontwerp",
 };
 
-// Shape returned by the get_request_by_token function (migration 0004).
+// Shape returned by the get_request_by_token function (migrations 0004, 0006).
 type TokenRequest = {
   type: string;
   status: string;
@@ -214,10 +214,16 @@ export default async function StatusPage({
             <dt className="font-medium">Totaal</dt>
             <dd className="font-medium">{formatEuro(total)}</dd>
           </dl>
-          <p className="mt-4 text-sm text-slate-600">
-            Vaste prijs — je hoeft nergens akkoord op te geven. Betalen kan
-            bij het ophalen, per bankoverschrijving of Tikkie.
-          </p>
+          {/* Price table always; action prose only while the order stands --
+              the same status gating the Offerte box below uses. Telling a
+              customer how to pay for an order we just rejected is worse than
+              saying nothing. */}
+          {status !== "rejected" && (
+            <p className="mt-4 text-sm text-slate-600">
+              Vaste prijs — je hoeft nergens akkoord op te geven. Betalen kan
+              bij het ophalen, per bankoverschrijving of Tikkie.
+            </p>
+          )}
         </section>
       )}
 
