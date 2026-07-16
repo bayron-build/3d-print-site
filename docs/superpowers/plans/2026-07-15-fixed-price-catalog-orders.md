@@ -958,7 +958,7 @@ Make the card heading fit both modes (line 224):
 
 ```tsx
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-          {request.unit_price !== null ? "Prijs & status" : "Offerte & status"}
+          {(request.unit_price ?? null) !== null ? "Prijs & status" : "Offerte & status"}
         </h2>
 ```
 
@@ -985,7 +985,7 @@ Between the row read and the `.update(...)` call, add:
   // POST is still just data — enforce the same rule here.
   if (
     existing &&
-    existing.unit_price !== null &&
+    (existing.unit_price ?? null) !== null &&
     !statusOptionsFor(true).includes(result.data.status)
   ) {
     return {
