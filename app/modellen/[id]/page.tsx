@@ -97,13 +97,13 @@ export default async function ProductDetailPage({
             <h1 className="text-3xl font-bold text-slate-900">{product.name}</h1>
             {product.indicative_price !== null && (
               <p className="text-lg">
-                Richtprijs vanaf{" "}
+                Vaste prijs{" "}
                 <span className="font-semibold">
                   {formatEuro(product.indicative_price)}
                 </span>
                 <span className="block text-sm text-slate-500">
-                  De definitieve prijs volgt in je offerte (kleur, materiaal en
-                  aantal tellen mee).
+                  Geen offerte nodig — na je bestelling gaan we direct voor je
+                  aan de slag.
                 </span>
               </p>
             )}

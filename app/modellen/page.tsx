@@ -6,7 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 export const metadata = {
   title: "Modellen",
   description:
-    "Kant-en-klare 3D-print modellen met richtprijzen — bestel direct of vraag een variant aan.",
+    "Kant-en-klare 3D-print modellen met vaste prijzen — bestel direct.",
 };
 
 export default async function ModelsPage() {
@@ -25,8 +25,8 @@ export default async function ModelsPage() {
       <main className="mx-auto w-full max-w-[88rem] flex-1 px-6 py-10">
         <h1 className="text-3xl font-bold text-slate-900">Modellen</h1>
         <p className="mt-2 max-w-xl text-slate-600">
-          Kant-en-klare ontwerpen, geprint op bestelling. De richtprijs is een
-          indicatie — je definitieve prijs volgt in de offerte.
+          Kant-en-klare ontwerpen, geprint op bestelling, voor een vaste
+          prijs. Geen offerte nodig — bestel direct.
         </p>
         {error ? (
           <p className="mt-8 text-red-700">{error.message}</p>

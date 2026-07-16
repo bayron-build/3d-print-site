@@ -18,8 +18,8 @@ export default function RequestSentPage() {
             Bedankt voor je aanvraag!
           </h1>
           <p className="text-slate-600">
-            We bekijken je aanvraag en nemen zo snel mogelijk contact met je
-            op met een prijsvoorstel.
+            We hebben je aanvraag in goede orde ontvangen. Je vindt de details
+            en de status via de link in je bevestigingsmail.
           </p>
           <ButtonLink href="/" variant="secondary">
             Terug naar de homepagina

@@ -36,7 +36,7 @@ export function ProductCard({ product }: { product: ProductSummary }) {
         <span className="text-sm font-medium text-slate-900">{product.name}</span>
         {product.indicative_price !== null && (
           <span className="shrink-0 text-sm text-slate-500">
-            Vanaf {formatEuro(product.indicative_price)}
+            {formatEuro(product.indicative_price)}
           </span>
         )}
       </div>

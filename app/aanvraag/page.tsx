@@ -52,8 +52,9 @@ export default async function RequestPage({
             Aanvraag indienen
           </h1>
           <p className="mt-2 text-slate-600">
-            Vertel ons wat je wilt laten printen. Je ontvangt een
-            prijsvoorstel — je betaalt pas na akkoord.
+            Vertel ons wat je wilt laten printen. Kant-en-klare producten
+            hebben een vaste prijs; voor eigen bestanden en ontwerpen ontvang
+            je eerst een prijsvoorstel.
           </p>
         </div>
         <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
@@ -111,7 +112,14 @@ function RequestSidebar() {
       <Card className="bg-violet-50">
         <h2 className="font-semibold text-slate-900">Goed om te weten</h2>
         <ul className="mt-3 flex flex-col gap-2 text-sm text-slate-600">
-          <li>Je betaalt pas nadat je akkoord bent gegaan met de offerte.</li>
+          <li>
+            Kant-en-klare producten hebben een vaste prijs — geen offerte
+            nodig.
+          </li>
+          <li>
+            Voor eigen bestanden en ontwerpen betaal je pas nadat je akkoord
+            bent gegaan met de offerte.
+          </li>
           <li>Je krijgt meestal binnen 1–2 dagen antwoord.</li>
           <li>Betalen kan per bankoverschrijving of Tikkie.</li>
         </ul>
