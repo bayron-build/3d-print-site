@@ -755,7 +755,17 @@ git commit -m "feat: live fixed-price panel on the catalog request form"
 
 **Interfaces:**
 - Consumes: RPC now returns `unit_price` (Task 1); `toAmount` import (already switched in Task 2).
-- Produces: UI only. Discriminator: `request.unit_price !== null` (legacy catalog requests keep the quote rendering).
+- Produces: UI only. Discriminator: `(request.unit_price ?? null) !== null` (legacy catalog requests keep the quote rendering).
+
+> **As-built correction — do not revert this to `!== null`.** The original text
+> said `request.unit_price !== null`. That is a crash: pre-0006 the RPC omits
+> the key entirely, so the value is `undefined`, and `undefined !== null` is
+> **true** — every request of every type is misclassified as fixed-price, which
+> suppresses `hasQuote` (killing the akkoord button for in-flight quote
+> customers) and then throws `TypeError: undefined.toFixed` in `formatEuro`, a
+> hard 500 on every customer's status page. Use `?? null`, and keep
+> `unit_price?:` typed optional so the guard doesn't read as dead code.
+> `??` not `||`: a `unit_price` of `0` is a legitimate free order.
 
 - [ ] **Step 1: Extend the row type** — add to `TokenRequest` (after `quote_print_fee`):
 
@@ -777,7 +787,9 @@ const FIXED_PRICE_PIPELINE = [
 - [ ] **Step 3: Pick pipeline + totals per request** — replace the `hasQuote`/`total` block (lines 90–93) with:
 
 ```ts
-  const hasFixedPrice = request.unit_price !== null;
+  // ?? null, never !== null — see the as-built correction above.
+  const unitPrice = request.unit_price ?? null;
+  const hasFixedPrice = unitPrice !== null;
   const pipeline: readonly RequestStatus[] = hasFixedPrice
     ? FIXED_PRICE_PIPELINE
     : PIPELINE;
@@ -848,6 +860,14 @@ git commit -m "feat: fixed-price rendering on the customer status page"
 **Interfaces:**
 - Consumes: `statusOptionsFor` (Task 3), `toAmount`/`formatEuro` (Task 2), `requests.unit_price` (Task 1).
 - Produces: `QuoteForm` props gain `unitPrice: number | string | null` and `quantity: number`.
+
+> **`unit_price` MUST stay in both `.select()` lists** (the page query in Step 4
+> and the action's read in Step 5). If either ever drops it, the field reads
+> `undefined`, and `undefined !== null` is **true** — every request silently
+> becomes fixed-price. supabase-js returns loosely-typed rows from a dynamic
+> `.select()`, so TypeScript will NOT catch it. Prefer `(x ?? null) !== null`
+> over `x !== null` at both derivation sites for the same reason Task 8 does
+> (`??` not `||`: a price of `0` is a legitimate free order).
 
 - [ ] **Step 1: Extend `QuoteForm`** — in `quote-form.tsx`:
 
