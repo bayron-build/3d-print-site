@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { validateQuote } from "@/lib/requests/admin-validation";
+import { statusOptionsFor } from "@/lib/requests/status";
 import { sendStatusEmail } from "@/lib/email/notifications";
 
 export type UpdateState = { errors: Record<string, string> | null; ok: boolean };
@@ -39,9 +40,28 @@ export async function updateRequest(
   // the quote email.
   const { data: existing } = await supabase
     .from("requests")
-    .select("status, email, customer_name, access_token")
+    .select("status, email, customer_name, access_token, unit_price")
     .eq("id", requestId)
     .maybeSingle();
+
+  // The dropdown hides quoted/approved for fixed-price orders, but the form
+  // POST is still just data — enforce the same rule here. Only the incoming
+  // status is checked: guarding the stored one would block a row out of a
+  // state it is legitimately leaving. `?? null` because a dropped unit_price
+  // in the select above reads as undefined, which a bare `!== null` would
+  // treat as a fixed price and then reject quoted/approved on every request.
+  if (
+    existing &&
+    (existing.unit_price ?? null) !== null &&
+    !statusOptionsFor(true).includes(result.data.status)
+  ) {
+    return {
+      errors: {
+        status: "Deze status bestaat niet voor een bestelling met vaste prijs.",
+      },
+      ok: false,
+    };
+  }
 
   // RLS restricts UPDATE to the admin; a non-admin session cannot reach here.
   const { error } = await supabase

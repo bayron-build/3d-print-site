@@ -43,7 +43,7 @@ export default async function RequestDetailPage({
   const { data: request, error } = await supabase
     .from("requests")
     .select(
-      "id, created_at, type, customer_name, email, phone, description, color, material, quantity, status, quote_design_fee, quote_print_fee, admin_notes, access_token, products(name)"
+      "id, created_at, type, customer_name, email, phone, description, color, material, quantity, status, quote_design_fee, quote_print_fee, unit_price, admin_notes, access_token, products(name)"
     )
     .eq("id", id)
     .maybeSingle();
@@ -89,6 +89,13 @@ export default async function RequestDetailPage({
   const productName = Array.isArray(request.products)
     ? request.products[0]?.name
     : (request.products as { name: string } | null)?.name;
+
+  // Normalise here, at the boundary where the loosely-typed row meets typed
+  // props: `.select()` rows are not checked by TypeScript, so a dropped
+  // unit_price would read as undefined and a bare `!== null` would turn every
+  // request into a fixed-price one. `??` not `||` — a price of 0 is a
+  // legitimate free order.
+  const unitPrice = request.unit_price ?? null;
 
   return (
     <div className="max-w-3xl">
@@ -213,21 +220,25 @@ export default async function RequestDetailPage({
       <Card className="mt-6">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">Statuspagina van de klant</h2>
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-          Op deze pagina ziet de klant de status en de offerte, en kan die
-          akkoord geven. Handig om zelf te delen (bijv. via WhatsApp) als de
-          e-mail de klant niet bereikt.
+          Op deze pagina ziet de klant de status en de prijs of offerte.
+          Handig om zelf te delen (bijv. via WhatsApp) als de e-mail de klant
+          niet bereikt.
         </p>
         <CopyStatusLink url={statusPageUrl(request.access_token)} />
       </Card>
 
       <Card className="mt-6">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Offerte &amp; status</h2>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+          {unitPrice !== null ? "Prijs & status" : "Offerte & status"}
+        </h2>
         <QuoteForm
           requestId={request.id}
           designFee={request.quote_design_fee}
           printFee={request.quote_print_fee}
           status={request.status as RequestStatus}
           notes={request.admin_notes}
+          unitPrice={unitPrice}
+          quantity={request.quantity}
         />
       </Card>
 
