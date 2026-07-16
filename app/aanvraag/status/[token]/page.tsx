@@ -28,6 +28,13 @@ const PIPELINE = [
   "done",
 ] as const satisfies readonly RequestStatus[];
 
+// Fixed-price orders skip the quote loop entirely.
+const FIXED_PRICE_PIPELINE = [
+  "received",
+  "printing",
+  "done",
+] as const satisfies readonly RequestStatus[];
+
 const TYPE_LABELS: Record<string, string> = {
   catalog: "Kant-en-klaar",
   file: "Print mijn bestand",
@@ -45,6 +52,10 @@ type TokenRequest = {
   material: string | null;
   quote_design_fee: number | string | null;
   quote_print_fee: number | string | null;
+  // Optional: migration 0006 adds unit_price to the RPC's result table. Until
+  // that runs the key is absent from the row, so the type must admit undefined
+  // rather than pretend every row carries it.
+  unit_price?: number | string | null;
   created_at: string;
   file_names: string[];
 };
@@ -82,10 +93,26 @@ export default async function StatusPage({
   }
 
   const status = request.status as RequestStatus;
+
+  // A missing key (RPC predates migration 0006) means the same thing to a
+  // customer as a NULL price: this is a quote-flow request. Only `?? null`
+  // collapses the two -- a bare `!== null` would read undefined as a fixed
+  // price, mislabel every request and then crash the page, since toAmount
+  // passes undefined straight through to formatEuro's toFixed.
+  const unitPrice = request.unit_price ?? null;
+
+  // unit_price is the discriminator, not the request type: a catalog request
+  // created before this feature has none and is still genuinely mid-quote.
+  const hasFixedPrice = unitPrice !== null;
+  const pipeline: readonly RequestStatus[] = hasFixedPrice
+    ? FIXED_PRICE_PIPELINE
+    : PIPELINE;
   const hasQuote =
-    request.quote_design_fee !== null || request.quote_print_fee !== null;
-  const total =
-    toAmount(request.quote_design_fee) + toAmount(request.quote_print_fee);
+    !hasFixedPrice &&
+    (request.quote_design_fee !== null || request.quote_print_fee !== null);
+  const total = hasFixedPrice
+    ? toAmount(unitPrice) * request.quantity
+    : toAmount(request.quote_design_fee) + toAmount(request.quote_print_fee);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -108,8 +135,8 @@ export default async function StatusPage({
           </p>
         ) : (
           <ol className="flex flex-wrap gap-2">
-            {PIPELINE.map((step, index) => {
-              const reached = index <= PIPELINE.indexOf(status as (typeof PIPELINE)[number]);
+            {pipeline.map((step, index) => {
+              const reached = index <= pipeline.indexOf(status);
               return (
                 <li
                   key={step}
@@ -175,6 +202,24 @@ export default async function StatusPage({
           </>
         )}
       </dl>
+
+      {hasFixedPrice && (
+        <section className="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-bold text-slate-900">Prijs</h2>
+          <dl className="mt-2 grid grid-cols-[8rem_1fr] gap-y-1 text-sm">
+            <dt className="text-slate-600">Per stuk</dt>
+            <dd>{formatEuro(toAmount(unitPrice))}</dd>
+            <dt className="text-slate-600">Aantal</dt>
+            <dd>{request.quantity}</dd>
+            <dt className="font-medium">Totaal</dt>
+            <dd className="font-medium">{formatEuro(total)}</dd>
+          </dl>
+          <p className="mt-4 text-sm text-slate-600">
+            Vaste prijs — je hoeft nergens akkoord op te geven. Betalen kan
+            bij het ophalen, per bankoverschrijving of Tikkie.
+          </p>
+        </section>
+      )}
 
       {hasQuote && (
         <section className="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
