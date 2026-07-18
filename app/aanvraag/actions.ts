@@ -11,6 +11,7 @@ import {
   sendConfirmationEmail,
   sendNewRequestNotification,
 } from "@/lib/email/notifications";
+import { formatColorSnapshot } from "@/lib/colors";
 
 export type SubmitState = { errors: Record<string, string> | null };
 
@@ -61,6 +62,7 @@ export async function submitRequest(
     material: String(formData.get("material") ?? ""),
     quantity: String(formData.get("quantity") ?? ""),
     licenseAccepted: formData.get("licenseAccepted") === "on",
+    colorId: String(formData.get("colorId") ?? ""),
     files: type === "custom" ? [] : uploadMeta,
     photos: type === "custom" ? uploadMeta : [],
   });
@@ -99,6 +101,25 @@ export async function submitRequest(
     productName = product.name;
   }
 
+  // Same trust rule as the price: the browser sends only a color id, the
+  // server resolves name and availability itself. The snapshot string is
+  // point-in-time — later stock changes never rewrite this order.
+  let colorSnapshot: string | null = null;
+  if (result.data.type === "catalog") {
+    const { data: color, error: colorError } = await supabase
+      .from("filament_colors")
+      .select("line, name, available")
+      .eq("id", result.data.colorId!)
+      .maybeSingle();
+    if (colorError) {
+      return { errors: { form: GENERIC_ERROR } };
+    }
+    if (!color) {
+      return { errors: { colorId: "Kies een kleur." } };
+    }
+    colorSnapshot = formatColorSnapshot(color);
+  }
+
   // Generate the id here instead of reading it back from the insert:
   // PostgREST only returns inserted rows to callers with SELECT permission,
   // and anonymous visitors must never be able to read requests. The access
@@ -116,7 +137,7 @@ export async function submitRequest(
     email: result.data.email,
     phone: result.data.phone,
     description: result.data.description,
-    color: result.data.color,
+    color: colorSnapshot ?? result.data.color,
     material: result.data.material,
     quantity: result.data.quantity,
     license_accepted: result.data.licenseAccepted,
@@ -152,7 +173,11 @@ export async function submitRequest(
     accessToken,
     order:
       unitPrice !== null
-        ? { unitPrice, quantity: result.data.quantity }
+        ? {
+            unitPrice,
+            quantity: result.data.quantity,
+            color: colorSnapshot ?? undefined,
+          }
         : undefined,
   });
 
@@ -164,7 +189,12 @@ export async function submitRequest(
     phone: result.data.phone,
     order:
       unitPrice !== null
-        ? { productName, unitPrice, quantity: result.data.quantity }
+        ? {
+            productName,
+            unitPrice,
+            quantity: result.data.quantity,
+            color: colorSnapshot ?? undefined,
+          }
         : undefined,
     request:
       unitPrice === null
