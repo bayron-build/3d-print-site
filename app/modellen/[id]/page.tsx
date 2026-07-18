@@ -2,12 +2,13 @@ import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { ButtonLink } from "@/components/ui/button";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { CubeLogo } from "@/components/site-header";
 import { formatEuro } from "@/lib/format";
 import { productPhotoUrl } from "@/lib/products/photos";
+import { OrderPanel } from "./order-panel";
+import type { FilamentColor } from "@/lib/colors";
 
 type Product = {
   id: string;
@@ -57,6 +58,16 @@ export default async function ProductDetailPage({
   const { id } = await params;
   const product = await getProduct(id);
   if (!product) notFound();
+
+  // Color palette for the picker. A fetch error degrades to no picker rather
+  // than a broken page; the order form falls back to default black.
+  const supabase = await createClient();
+  const { data: colorRows } = await supabase
+    .from("filament_colors")
+    .select("id, line, name, hex, available")
+    .order("line")
+    .order("sort_order");
+  const colors: FilamentColor[] = colorRows ?? [];
 
   const [cover, ...rest] = product.photos;
 
@@ -116,13 +127,7 @@ export default async function ProductDetailPage({
                 {product.description}
               </p>
             )}
-            <ButtonLink
-              href={`/aanvraag?product=${product.id}`}
-              size="lg"
-              className="mt-2 self-start"
-            >
-              Bestellen
-            </ButtonLink>
+            <OrderPanel productId={product.id} colors={colors} />
           </div>
         </div>
       </main>
