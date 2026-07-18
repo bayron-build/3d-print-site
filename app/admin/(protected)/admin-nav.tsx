@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const LINKS = [
   { href: "/admin", label: "Aanvragen" },
   { href: "/admin/producten", label: "Producten" },
+  { href: "/admin/kleuren", label: "Kleuren" },
 ] as const;
 
 // Client component only for the active-link highlight; the layout stays a
