@@ -7,7 +7,10 @@ import {
   validateRequest,
   type FileMeta,
 } from "@/lib/requests/validation";
-import { sendConfirmationEmail } from "@/lib/email/notifications";
+import {
+  sendConfirmationEmail,
+  sendNewRequestNotification,
+} from "@/lib/email/notifications";
 
 export type SubmitState = { errors: Record<string, string> | null };
 
@@ -74,10 +77,11 @@ export async function submitRequest(
   // RLS hides inactive products from anon, but this action runs with the
   // caller's cookies, so an admin filling the form would otherwise see them.
   let unitPrice: number | string | null = null;
+  let productName = "";
   if (result.data.type === "catalog") {
     const { data: product, error: productError } = await supabase
       .from("products")
-      .select("indicative_price")
+      .select("name, indicative_price")
       .eq("id", result.data.productId!)
       .eq("active", true)
       .maybeSingle();
@@ -92,6 +96,7 @@ export async function submitRequest(
       };
     }
     unitPrice = product.indicative_price;
+    productName = product.name;
   }
 
   // Generate the id here instead of reading it back from the insert:
@@ -148,6 +153,28 @@ export async function submitRequest(
     order:
       unitPrice !== null
         ? { unitPrice, quantity: result.data.quantity }
+        : undefined,
+  });
+
+  // Owner alert — same never-throws guarantee as the confirmation above.
+  await sendNewRequestNotification({
+    requestId,
+    customerName: result.data.customerName,
+    email: result.data.email,
+    phone: result.data.phone,
+    order:
+      unitPrice !== null
+        ? { productName, unitPrice, quantity: result.data.quantity }
+        : undefined,
+    request:
+      unitPrice === null
+        ? {
+            description: result.data.description,
+            color: result.data.color,
+            material: result.data.material,
+            quantity: result.data.quantity,
+            fileCount: uploadedFiles.length,
+          }
         : undefined,
   });
 

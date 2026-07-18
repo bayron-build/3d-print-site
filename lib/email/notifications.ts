@@ -7,7 +7,9 @@ import { sendEmail } from "./send";
 import {
   confirmationEmail,
   emailForStatusChange,
+  ownerNotificationEmail,
   type OrderSummary,
+  type OwnerNotificationInput,
 } from "./templates";
 
 // Absolute link for emails: Vercel's deploy URL in production,
@@ -55,4 +57,26 @@ export async function sendStatusEmail(
     return; // received / approved / printing: no email by design.
   }
   await sendEmail({ to: request.email, subject: content.subject, html: content.html });
+}
+
+// Owner alert on every new submission. ADMIN_EMAIL unset (e.g. local dev)
+// follows the transport's pattern: warn and skip, never fail the submit.
+export function adminRequestUrl(requestId: string): string {
+  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  return `${base.replace(/\/+$/, "")}/admin/aanvragen/${requestId}`;
+}
+
+export async function sendNewRequestNotification(
+  input: { requestId: string } & Omit<OwnerNotificationInput, "adminUrl">
+): Promise<void> {
+  const to = process.env.ADMIN_EMAIL;
+  if (!to) {
+    console.warn("[email] ADMIN_EMAIL not set; skipping owner notification");
+    return;
+  }
+  const { subject, html } = ownerNotificationEmail({
+    ...input,
+    adminUrl: adminRequestUrl(input.requestId),
+  });
+  await sendEmail({ to, subject, html });
 }
