@@ -3,6 +3,7 @@ import {
   confirmationEmail,
   doneEmail,
   emailForStatusChange,
+  ownerNotificationEmail,
   quoteEmail,
   rejectedEmail,
   type QuoteEmailInput,
@@ -150,5 +151,88 @@ describe("emailForStatusChange", () => {
     expect(emailForStatusChange("received", quoteInput())).toBeNull();
     expect(emailForStatusChange("approved", quoteInput())).toBeNull();
     expect(emailForStatusChange("printing", quoteInput())).toBeNull();
+  });
+});
+
+describe("ownerNotificationEmail", () => {
+  const ADMIN_URL =
+    "https://example.com/admin/aanvragen/00000000-0000-0000-0000-000000000000";
+
+  const catalogInput = {
+    customerName: "Jan",
+    email: "jan@example.com",
+    phone: "0612345678",
+    adminUrl: ADMIN_URL,
+    order: { productName: "Vaas", unitPrice: "12.50", quantity: 3 },
+  };
+
+  const customInput = {
+    customerName: "Jan",
+    email: "jan@example.com",
+    phone: null,
+    adminUrl: ADMIN_URL,
+    request: {
+      description: "Een kapotte klink namaken",
+      color: "Zwart",
+      material: "PETG",
+      quantity: 2,
+      fileCount: 2,
+    },
+  };
+
+  it("catalog: subject names the sender, body shows contact, product and totals", () => {
+    const email = ownerNotificationEmail(catalogInput);
+    expect(email.subject).toBe("Nieuwe bestelling van Jan");
+    expect(email.html).toContain("jan@example.com");
+    expect(email.html).toContain("0612345678");
+    expect(email.html).toContain("Product: Vaas");
+    expect(email.html).toContain("Aantal: 3");
+    expect(email.html).toContain("Prijs per stuk: € 12,50");
+    expect(email.html).toContain("Totaal: € 37,50");
+    expect(email.html).toContain(ADMIN_URL);
+  });
+
+  it("custom/file: subject says aanvraag, body shows details and attachment count", () => {
+    const email = ownerNotificationEmail(customInput);
+    expect(email.subject).toBe("Nieuwe aanvraag van Jan");
+    expect(email.html).toContain("Een kapotte klink namaken");
+    expect(email.html).toContain("Kleur: Zwart");
+    expect(email.html).toContain("Materiaal: PETG");
+    expect(email.html).toContain("Aantal: 2");
+    expect(email.html).toContain("Bijlagen: 2");
+    expect(email.html).toContain(ADMIN_URL);
+  });
+
+  it("omits the phone line when phone is null", () => {
+    const email = ownerNotificationEmail(customInput);
+    expect(email.html).not.toContain("Telefoon");
+  });
+
+  it("omits empty detail lines (no description/color/material)", () => {
+    const email = ownerNotificationEmail({
+      ...customInput,
+      request: {
+        description: null,
+        color: null,
+        material: null,
+        quantity: 1,
+        fileCount: 1,
+      },
+    });
+    expect(email.html).not.toContain("Omschrijving");
+    expect(email.html).not.toContain("Kleur");
+    expect(email.html).not.toContain("Materiaal");
+  });
+
+  it("escapes HTML in customer-supplied fields", () => {
+    const email = ownerNotificationEmail({
+      ...customInput,
+      customerName: "<script>alert(1)</script>",
+      request: { ...customInput.request, description: "<img src=x>" },
+    });
+    expect(email.html).not.toContain("<script>");
+    expect(email.html).toContain("&lt;script&gt;");
+    expect(email.html).not.toContain("<img");
+    expect(email.html).toContain("&lt;img");
   });
 });

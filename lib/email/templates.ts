@@ -135,6 +135,74 @@ export function rejectedEmail(input: ConfirmationEmailInput): EmailContent {
   };
 }
 
+// Owner notification: sent to ADMIN_EMAIL on every new submission so the
+// inbox answers "who and what" without opening the admin site. Subjects are
+// plain text (no HTML escaping); everything in the body is escaped.
+export type OwnerNotificationInput = {
+  customerName: string;
+  email: string;
+  phone: string | null;
+  adminUrl: string;
+  // Exactly one of the two below is set: `order` for catalog, `request` for custom/file.
+  order?: { productName: string; unitPrice: number | string; quantity: number };
+  request?: {
+    description: string | null;
+    color: string | null;
+    material: string | null;
+    quantity: number;
+    fileCount: number;
+  };
+};
+
+export function ownerNotificationEmail(
+  input: OwnerNotificationInput
+): EmailContent {
+  const contact = [
+    `Naam: ${escapeHtml(input.customerName)}`,
+    `E-mail: ${escapeHtml(input.email)}`,
+  ];
+  if (input.phone !== null) {
+    contact.push(`Telefoon: ${escapeHtml(input.phone)}`);
+  }
+
+  const details: string[] = [];
+  if (input.order) {
+    const total = toAmount(input.order.unitPrice) * input.order.quantity;
+    details.push(
+      `Product: ${escapeHtml(input.order.productName)}`,
+      `Aantal: ${input.order.quantity}`,
+      `Prijs per stuk: ${formatEuro(input.order.unitPrice)}`,
+      `<strong>Totaal: ${formatEuro(total)}</strong>`
+    );
+  } else if (input.request) {
+    if (input.request.description !== null) {
+      details.push(`Omschrijving: ${escapeHtml(input.request.description)}`);
+    }
+    if (input.request.color !== null) {
+      details.push(`Kleur: ${escapeHtml(input.request.color)}`);
+    }
+    if (input.request.material !== null) {
+      details.push(`Materiaal: ${escapeHtml(input.request.material)}`);
+    }
+    details.push(`Aantal: ${input.request.quantity}`);
+    details.push(`Bijlagen: ${input.request.fileCount}`);
+  }
+
+  return {
+    subject: input.order
+      ? `Nieuwe bestelling van ${input.customerName}`
+      : `Nieuwe aanvraag van ${input.customerName}`,
+    html: layout([
+      input.order
+        ? "Er is een nieuwe bestelling binnengekomen."
+        : "Er is een nieuwe aanvraag binnengekomen.",
+      contact.join("<br>"),
+      details.join("<br>"),
+      `Bekijk de details in het ${statusLink(input.adminUrl, "beheer")}.`,
+    ]),
+  };
+}
+
 // One entry point for "the status changed, which email (if any) goes out?".
 // received/approved/printing deliberately send nothing: the status page
 // already shows progress, and emailing every step is noise.
