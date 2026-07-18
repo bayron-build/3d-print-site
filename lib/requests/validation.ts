@@ -42,6 +42,7 @@ export type RequestInput = {
   material: string;
   quantity: string;
   licenseAccepted: boolean;
+  colorId: string;
   files: FileMeta[];
   photos: FileMeta[];
 };
@@ -58,6 +59,9 @@ export type ValidRequest = {
   material: string | null;
   quantity: number;
   licenseAccepted: boolean;
+  // Catalog only: id in filament_colors. The server action resolves it to a
+  // snapshot string; the id itself is never stored.
+  colorId: string | null;
 };
 
 export type ValidationResult =
@@ -93,6 +97,14 @@ export function validateRequest(input: RequestInput): ValidationResult {
   const productId = input.productId.trim();
   if (type === "catalog" && !productId) {
     errors.productId = "Kies een product.";
+  }
+
+  // The picker always submits a color (defaults to black); a missing id only
+  // happens on hand-crafted POSTs. Existence in filament_colors is checked
+  // by the server action — this module stays I/O-free.
+  const colorId = input.colorId.trim();
+  if (type === "catalog" && !colorId) {
+    errors.colorId = "Kies een kleur.";
   }
 
   // Custom requests are quoted per piece anyway; quantity applies to the
@@ -154,6 +166,7 @@ export function validateRequest(input: RequestInput): ValidationResult {
       material: input.material.trim() || null,
       quantity,
       licenseAccepted: input.licenseAccepted,
+      colorId: type === "catalog" ? colorId : null,
     },
   };
 }

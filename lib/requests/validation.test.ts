@@ -23,6 +23,7 @@ function input(overrides: Partial<RequestInput> = {}): RequestInput {
     material: "",
     quantity: "1",
     licenseAccepted: false,
+    colorId: "",
     files: [],
     photos: [],
     ...overrides,
@@ -39,7 +40,12 @@ describe("validateRequest", () => {
 
   it("accepts a valid catalog request and returns cleaned data", () => {
     const result = validateRequest(
-      input({ type: "catalog", productId: "abc-123", quantity: "2" })
+      input({
+        type: "catalog",
+        productId: "abc-123",
+        quantity: "2",
+        colorId: "basic-black",
+      })
     );
     expect(result).toEqual({
       ok: true,
@@ -54,8 +60,23 @@ describe("validateRequest", () => {
         material: null,
         quantity: 2,
         licenseAccepted: false,
+        colorId: "basic-black",
       },
     });
+  });
+
+  it("requires a color for catalog requests", () => {
+    const result = validateRequest(
+      input({ type: "catalog", productId: "abc-123", colorId: "  " })
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.colorId).toBeDefined();
+  });
+
+  it("nulls colorId for non-catalog requests", () => {
+    const result = validateRequest(input({ colorId: "basic-black" }));
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data.colorId).toBeNull();
   });
 
   it("accepts a valid file request", () => {
