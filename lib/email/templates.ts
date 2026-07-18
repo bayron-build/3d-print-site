@@ -33,6 +33,8 @@ function statusLink(statusUrl: string, label: string): string {
 export type OrderSummary = {
   unitPrice: number | string;
   quantity: number;
+  // Color snapshot ("PLA Basic – Black"), present for new catalog orders.
+  color?: string;
 };
 
 export type ConfirmationEmailInput = {
@@ -46,16 +48,20 @@ export function confirmationEmail(
 ): EmailContent {
   if (input.order) {
     const total = toAmount(input.order.unitPrice) * input.order.quantity;
+    const lines = [
+      `Prijs per stuk: ${formatEuro(input.order.unitPrice)}`,
+      `Aantal: ${input.order.quantity}`,
+    ];
+    if (input.order.color) {
+      lines.push(`Kleur: ${escapeHtml(input.order.color)}`);
+    }
+    lines.push(`<strong>Totaal: ${formatEuro(total)}</strong>`);
     return {
       subject: "We hebben je bestelling ontvangen",
       html: layout([
         `Beste ${escapeHtml(input.customerName)},`,
         "Bedankt voor je bestelling! We hebben hem in goede orde ontvangen.",
-        [
-          `Prijs per stuk: ${formatEuro(input.order.unitPrice)}`,
-          `Aantal: ${input.order.quantity}`,
-          `<strong>Totaal: ${formatEuro(total)}</strong>`,
-        ].join("<br>"),
+        lines.join("<br>"),
         "Dit is een vaste prijs — je hoeft geen offerte af te wachten. Betalen kan bij het ophalen, per bankoverschrijving of Tikkie.",
         `Via jouw persoonlijke pagina kun je de bestelling volgen: ${statusLink(
           input.statusUrl,
@@ -144,7 +150,12 @@ export type OwnerNotificationInput = {
   phone: string | null;
   adminUrl: string;
   // Exactly one of the two below is set: `order` for catalog, `request` for custom/file.
-  order?: { productName: string; unitPrice: number | string; quantity: number };
+  order?: {
+    productName: string;
+    unitPrice: number | string;
+    quantity: number;
+    color?: string;
+  };
   request?: {
     description: string | null;
     color: string | null;
@@ -170,7 +181,12 @@ export function ownerNotificationEmail(
     const total = toAmount(input.order.unitPrice) * input.order.quantity;
     details.push(
       `Product: ${escapeHtml(input.order.productName)}`,
-      `Aantal: ${input.order.quantity}`,
+      `Aantal: ${input.order.quantity}`
+    );
+    if (input.order.color) {
+      details.push(`Kleur: ${escapeHtml(input.order.color)}`);
+    }
+    details.push(
       `Prijs per stuk: ${formatEuro(input.order.unitPrice)}`,
       `<strong>Totaal: ${formatEuro(total)}</strong>`
     );

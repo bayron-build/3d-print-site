@@ -98,6 +98,22 @@ describe("confirmationEmail — fixed-price order", () => {
     expect(email.subject).toBe("We hebben je aanvraag ontvangen");
     expect(email.html).toContain("prijsvoorstel");
   });
+
+  it("shows the chosen color when present and omits the line when absent", () => {
+    const withColor = confirmationEmail({
+      customerName: "Jan",
+      statusUrl: "https://example.com/s/t",
+      order: { unitPrice: 10, quantity: 1, color: "PLA Basic – Black" },
+    });
+    expect(withColor.html).toContain("Kleur: PLA Basic – Black");
+
+    const withoutColor = confirmationEmail({
+      customerName: "Jan",
+      statusUrl: "https://example.com/s/t",
+      order: { unitPrice: 10, quantity: 1 },
+    });
+    expect(withoutColor.html).not.toContain("Kleur:");
+  });
 });
 
 describe("quoteEmail", () => {
@@ -234,5 +250,20 @@ describe("ownerNotificationEmail", () => {
     expect(email.html).toContain("&lt;script&gt;");
     expect(email.html).not.toContain("<img");
     expect(email.html).toContain("&lt;img");
+  });
+
+  it("catalog: shows the chosen color when present", () => {
+    const { html } = ownerNotificationEmail({
+      ...catalogInput,
+      order: {
+        productName: "Vaas",
+        unitPrice: 10,
+        quantity: 2,
+        color: "PLA Matte – Charcoal (niet op voorraad — langere levertijd)",
+      },
+    });
+    expect(html).toContain(
+      "Kleur: PLA Matte – Charcoal (niet op voorraad — langere levertijd)"
+    );
   });
 });
