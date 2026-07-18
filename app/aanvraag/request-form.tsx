@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { IconPencil, IconUpload } from "@/components/ui/icons";
 import { CubeLogo } from "@/components/site-header";
+import { ColorPicker } from "@/components/color-picker";
+import type { FilamentColor } from "@/lib/colors";
 import { formatEuro, formatFileSize, toAmount } from "@/lib/format";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -65,10 +67,14 @@ export function RequestForm({
   products,
   preselectedProductId,
   initialType,
+  colors,
+  initialColorId,
 }: {
   products: ProductOption[];
   preselectedProductId: string;
   initialType: FormType | "";
+  colors: FilamentColor[];
+  initialColorId: string;
 }) {
   const [state, formAction, actionPending] = useActionState(
     submitRequest,
@@ -79,6 +85,7 @@ export function RequestForm({
     preselectedProductId ? "catalog" : initialType || "file"
   );
   const [productId, setProductId] = useState(preselectedProductId);
+  const [colorId, setColorId] = useState(initialColorId);
   const [quantity, setQuantity] = useState("1");
   const [files, setFiles] = useState<File[]>([]);
   const [photos, setPhotos] = useState<File[]>([]);
@@ -151,6 +158,7 @@ export function RequestForm({
       material: String(formData.get("material") ?? ""),
       quantity: String(formData.get("quantity") ?? ""),
       licenseAccepted: formData.get("licenseAccepted") === "on",
+      colorId: String(formData.get("colorId") ?? ""),
       // Only the upload kind matching the active type is sent to validation:
       // a leftover selection from another type must not block the submit with
       // an error that never renders (mirrors the uploadTargets scoping below).
@@ -301,6 +309,25 @@ export function RequestForm({
                 </p>
               </div>
             )}
+
+            <div className="flex flex-col gap-1.5">
+              <input type="hidden" name="colorId" value={colorId} />
+              {colors.length > 0 && (
+                <>
+                  <span className="text-sm font-medium text-slate-700">
+                    Kleur
+                  </span>
+                  <ColorPicker
+                    colors={colors}
+                    selectedId={colorId}
+                    onSelect={setColorId}
+                  />
+                </>
+              )}
+              {errors.colorId && (
+                <p className="text-sm text-red-600">{errors.colorId}</p>
+              )}
+            </div>
           </>
         )}
 
@@ -418,9 +445,11 @@ export function RequestForm({
         )}
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Kleur (optioneel)">
-            <Input type="text" name="color" />
-          </Field>
+          {(type === "file" || type === "custom") && (
+            <Field label="Kleur (optioneel)">
+              <Input type="text" name="color" />
+            </Field>
+          )}
           {(type === "file" || type === "custom") && (
             <Field label="Materiaal (optioneel)">
               <Input type="text" name="material" />

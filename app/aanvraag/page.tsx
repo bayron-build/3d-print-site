@@ -9,6 +9,7 @@ import {
   IconTruck,
 } from "@/components/ui/icons";
 import { SITE_EMAIL } from "@/lib/site";
+import { resolveColorId, type FilamentColor } from "@/lib/colors";
 import { RequestForm, type FormType, type ProductOption } from "./request-form";
 
 export const metadata = { title: "Aanvraag indienen" };
@@ -19,7 +20,7 @@ export default async function RequestPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   // Next 16: searchParams is a Promise and must be awaited.
-  const { product, type } = await searchParams;
+  const { product, type, color } = await searchParams;
   const supabase = await createClient();
 
   // RLS already limits anon to active products; the explicit filter keeps
@@ -31,6 +32,16 @@ export default async function RequestPage({
     .eq("active", true)
     .not("indicative_price", "is", null)
     .order("name");
+
+  const { data: colorRows } = await supabase
+    .from("filament_colors")
+    .select("id, line, name, hex, available")
+    .order("line")
+    .order("sort_order");
+  const colors: FilamentColor[] = colorRows ?? [];
+  // Unknown ?color= id: silently fall back to default black, same posture
+  // as ?product= and ?type=.
+  const initialColorId = resolveColorId(color, colors);
 
   const productList: ProductOption[] = products ?? [];
   // Unknown or inactive ?product= id: silently ignore, no pre-selection.
@@ -68,6 +79,8 @@ export default async function RequestPage({
                 products={productList}
                 preselectedProductId={preselected}
                 initialType={initialType}
+                colors={colors}
+                initialColorId={initialColorId}
               />
             )}
           </Card>
