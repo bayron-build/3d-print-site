@@ -10,7 +10,14 @@ export type ProductSummary = {
   photos: string[];
 };
 
-export function ProductCard({ product }: { product: ProductSummary }) {
+export function ProductCard({
+  product,
+  versionCount,
+}: {
+  product: ProductSummary;
+  // Display value including the base option; undefined = no hint.
+  versionCount?: number;
+}) {
   return (
     <Link
       href={`/modellen/${product.id}`}
@@ -32,11 +39,18 @@ export function ProductCard({ product }: { product: ProductSummary }) {
           </div>
         )}
       </div>
-      <div className="flex items-baseline justify-between gap-2 p-3">
-        <span className="text-sm font-medium text-slate-900">{product.name}</span>
-        {product.indicative_price !== null && (
-          <span className="shrink-0 text-sm text-slate-500">
-            {formatEuro(product.indicative_price)}
+      <div className="flex flex-col gap-0.5 p-3">
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="text-sm font-medium text-slate-900">{product.name}</span>
+          {product.indicative_price !== null && (
+            <span className="shrink-0 text-sm text-slate-500">
+              {formatEuro(product.indicative_price)}
+            </span>
+          )}
+        </div>
+        {versionCount !== undefined && (
+          <span className="text-xs text-slate-500">
+            {versionCount} uitvoeringen
           </span>
         )}
       </div>

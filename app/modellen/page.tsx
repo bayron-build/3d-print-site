@@ -24,6 +24,16 @@ export default async function ModelsPage() {
     .order("created_at", { ascending: false });
   const productList: ProductSummary[] = products ?? [];
 
+  // One query for all versions; RLS already limits anon to versions of
+  // active products. A fetch error degrades to no hints — cards still render.
+  const { data: versionRows } = await supabase
+    .from("product_versions")
+    .select("product_id");
+  const versionCounts = new Map<string, number>();
+  for (const row of versionRows ?? []) {
+    versionCounts.set(row.product_id, (versionCounts.get(row.product_id) ?? 0) + 1);
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
@@ -42,9 +52,16 @@ export default async function ModelsPage() {
           </p>
         ) : (
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {productList.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+            {productList.map((product) => {
+              const versions = versionCounts.get(product.id) ?? 0;
+              return (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  versionCount={versions > 0 ? versions + 1 : undefined}
+                />
+              );
+            })}
           </div>
         )}
       </main>
