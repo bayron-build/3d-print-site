@@ -53,6 +53,7 @@ dependencies. **UI language: Dutch. Code, comments, variable names: English.**
 | 5 | Emails + customer status page via magic link | done |
 | 6 | Public landing page + catalog (Dutch copy provided by owner) | done |
 | — | Site redesign: light/violet theme, shared UI components (2026-07-14) | done |
+| — | Productversies met kortingsprijzen ("uitvoeringen", 2026-07-19) | done |
 
 ## Explicitly NOT in v1 (do not build, do not scaffold)
 
