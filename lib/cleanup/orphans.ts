@@ -26,3 +26,42 @@ export function selectOrphans(
     })
     .map((object) => object.path);
 }
+
+// Shape of one storage.list() entry we rely on: id is null for folders.
+export interface ListedEntry {
+  name: string;
+  id: string | null;
+  created_at: string | null;
+}
+
+export type ListPage = (
+  prefix: string,
+  offset: number,
+  limit: number
+) => Promise<ListedEntry[]>;
+
+const LIST_PAGE_SIZE = 1000;
+
+// storage.list() returns one folder level at a time and caps each response,
+// so both recursion and offset-pagination are needed — otherwise growth past
+// one page would silently truncate the scan and strand orphans forever.
+export async function listAllObjects(
+  listPage: ListPage,
+  prefix = "",
+  pageSize: number = LIST_PAGE_SIZE
+): Promise<BucketObject[]> {
+  const objects: BucketObject[] = [];
+  for (let offset = 0; ; offset += pageSize) {
+    const page = await listPage(prefix, offset, pageSize);
+    for (const entry of page) {
+      const path = prefix === "" ? entry.name : `${prefix}/${entry.name}`;
+      if (entry.id === null) {
+        objects.push(...(await listAllObjects(listPage, path, pageSize)));
+      } else {
+        objects.push({ path, createdAt: entry.created_at });
+      }
+    }
+    if (page.length < pageSize) break;
+  }
+  return objects;
+}
