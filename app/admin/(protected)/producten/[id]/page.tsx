@@ -4,8 +4,10 @@ import { priceToInput } from "@/lib/products/validation";
 import { updateProduct } from "../actions";
 import { ProductForm } from "../product-form";
 import { PhotoManager } from "./photo-manager";
+import { VersionsManager } from "./versions-manager";
 import { DeleteProductButton } from "./delete-button";
 import { Card } from "@/components/ui/card";
+import type { ProductVersion } from "@/lib/products/versions";
 
 export default async function EditProductPage({
   params,
@@ -21,6 +23,15 @@ export default async function EditProductPage({
     .eq("id", id)
     .maybeSingle();
   if (error || !product) notFound();
+
+  // Version list for the Uitvoeringen block. On a fetch error the block
+  // renders empty; saving will surface errors of its own.
+  const { data: versionRows } = await supabase
+    .from("product_versions")
+    .select("id, product_id, name, price, compare_at_price, photo_path, sort_order")
+    .eq("product_id", id)
+    .order("sort_order");
+  const versions: ProductVersion[] = versionRows ?? [];
 
   return (
     <div className="flex flex-col gap-8">
@@ -41,6 +52,13 @@ export default async function EditProductPage({
       </Card>
       <Card className="max-w-xl">
         <PhotoManager productId={product.id} photos={product.photos} />
+      </Card>
+      <Card className="max-w-xl">
+        <VersionsManager
+          productId={product.id}
+          photos={product.photos}
+          versions={versions}
+        />
       </Card>
       <DeleteProductButton productId={product.id} />
     </div>
