@@ -3,6 +3,7 @@
 // Mirrors lib/requests/admin-validation.ts.
 
 import { parseFee } from "@/lib/requests/admin-validation";
+import { MAX_VERSION_NAME_LENGTH } from "@/lib/products/versions";
 
 export const MAX_PHOTOS = 6;
 // Keep in sync with the bucket's file_size_limit in 0005_product_photos.sql.
@@ -13,6 +14,7 @@ export type ProductInput = {
   name: string;
   description: string;
   indicativePrice: string;
+  baseVersionLabel: string;
   active: boolean;
 };
 
@@ -20,6 +22,7 @@ export type ValidProduct = {
   name: string;
   description: string | null;
   indicativePrice: number | null;
+  baseVersionLabel: string | null;
   active: boolean;
 };
 
@@ -50,6 +53,12 @@ export function validateProduct(input: ProductInput): ProductValidationResult {
     errors.indicativePrice = "Een actief product heeft een vaste prijs nodig.";
   }
 
+  // Same cap as version names: the label renders as the first picker card.
+  const baseVersionLabel = input.baseVersionLabel.trim();
+  if (baseVersionLabel.length > MAX_VERSION_NAME_LENGTH) {
+    errors.baseVersionLabel = `Gebruik maximaal ${MAX_VERSION_NAME_LENGTH} tekens.`;
+  }
+
   if (Object.keys(errors).length > 0) {
     return { ok: false, errors };
   }
@@ -60,6 +69,7 @@ export function validateProduct(input: ProductInput): ProductValidationResult {
       name,
       description: input.description.trim() || null,
       indicativePrice: price.ok ? price.value : null,
+      baseVersionLabel: baseVersionLabel || null,
       active: input.active,
     },
   };

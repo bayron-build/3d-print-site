@@ -17,7 +17,7 @@ export default async function EditProductPage({
   const supabase = await createClient();
   const { data: product, error } = await supabase
     .from("products")
-    .select("id, name, description, indicative_price, active, photos")
+    .select("id, name, description, indicative_price, base_version_label, active, photos")
     .eq("id", id)
     .maybeSingle();
   if (error || !product) notFound();
@@ -33,6 +33,7 @@ export default async function EditProductPage({
             name: product.name,
             description: product.description ?? "",
             indicativePrice: priceToInput(product.indicative_price),
+            baseVersionLabel: product.base_version_label ?? "",
             active: product.active,
           }}
           submitLabel="Opslaan"

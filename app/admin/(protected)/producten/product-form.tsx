@@ -9,6 +9,7 @@ export type ProductFormValues = {
   name: string;
   description: string;
   indicativePrice: string;
+  baseVersionLabel: string;
   active: boolean;
 };
 
@@ -53,6 +54,18 @@ export function ProductForm({
           inputMode="decimal"
           defaultValue={initial.indicativePrice}
           placeholder="bijv. 12,50"
+        />
+      </Field>
+
+      <Field
+        label='Label basisprijs (optioneel — getoond als eerste keuze bij uitvoeringen, leeg = "Standaard")'
+        error={errors.baseVersionLabel}
+      >
+        <Input
+          type="text"
+          name="baseVersionLabel"
+          defaultValue={initial.baseVersionLabel}
+          placeholder="bijv. Enkel"
         />
       </Field>
 

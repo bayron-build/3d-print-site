@@ -14,6 +14,7 @@ function input(overrides: Partial<ProductInput> = {}): ProductInput {
     name: "Vaas",
     description: "",
     indicativePrice: "",
+    baseVersionLabel: "",
     active: true,
     ...overrides,
   };
@@ -30,6 +31,7 @@ describe("validateProduct", () => {
         name: "Vaas",
         description: null,
         indicativePrice: null,
+        baseVersionLabel: null,
         active: false,
       });
     }
@@ -78,6 +80,7 @@ describe("validateProduct — fixed price rule", () => {
       name: "Vaas",
       description: "",
       indicativePrice: "",
+      baseVersionLabel: "",
       active: true,
     });
     expect(result.ok).toBe(false);
@@ -93,6 +96,7 @@ describe("validateProduct — fixed price rule", () => {
       name: "Vaas",
       description: "",
       indicativePrice: "",
+      baseVersionLabel: "",
       active: false,
     });
     expect(result.ok).toBe(true);
@@ -103,6 +107,7 @@ describe("validateProduct — fixed price rule", () => {
       name: "Vaas",
       description: "",
       indicativePrice: "12,50",
+      baseVersionLabel: "",
       active: true,
     });
     expect(result.ok).toBe(true);
@@ -120,6 +125,7 @@ describe("validateProduct — fixed price rule", () => {
       name: "Vaas",
       description: "",
       indicativePrice: "abc",
+      baseVersionLabel: "",
       active: true,
     });
     expect(result.ok).toBe(false);
@@ -135,6 +141,7 @@ describe("validateProduct — fixed price rule", () => {
       name: "Vaas",
       description: "",
       indicativePrice: "abc",
+      baseVersionLabel: "",
       active: false,
     });
     expect(result.ok).toBe(false);
@@ -143,6 +150,41 @@ describe("validateProduct — fixed price rule", () => {
         "Vul een geldig bedrag in (bijv. 12,50) of laat leeg."
       );
     }
+  });
+});
+
+describe("validateProduct base version label", () => {
+  const base = {
+    name: "Theedispenser",
+    description: "",
+    indicativePrice: "23,00",
+    baseVersionLabel: "",
+    active: true,
+  };
+
+  it("passes an empty label through as null", () => {
+    const result = validateProduct(base);
+    expect(result.ok && result.data.baseVersionLabel).toBeNull();
+  });
+
+  it("trims the label and treats whitespace-only as null", () => {
+    const trimmed = validateProduct({ ...base, baseVersionLabel: " Enkel " });
+    expect(trimmed.ok && trimmed.data.baseVersionLabel).toBe("Enkel");
+    const blank = validateProduct({ ...base, baseVersionLabel: "   " });
+    expect(blank.ok && blank.data.baseVersionLabel).toBeNull();
+  });
+
+  it("rejects a label over 40 characters but accepts exactly 40", () => {
+    const long = validateProduct({
+      ...base,
+      baseVersionLabel: "x".repeat(41),
+    });
+    expect(!long.ok && long.errors.baseVersionLabel).toBe(
+      "Gebruik maximaal 40 tekens."
+    );
+    expect(
+      validateProduct({ ...base, baseVersionLabel: "x".repeat(40) }).ok
+    ).toBe(true);
   });
 });
 

@@ -17,6 +17,7 @@ function readProductInput(formData: FormData) {
     name: String(formData.get("name") ?? ""),
     description: String(formData.get("description") ?? ""),
     indicativePrice: String(formData.get("indicativePrice") ?? ""),
+    baseVersionLabel: String(formData.get("baseVersionLabel") ?? ""),
     active: formData.get("active") === "on",
   };
 }
@@ -50,6 +51,7 @@ export async function createProduct(
       name: result.data.name,
       description: result.data.description,
       indicative_price: result.data.indicativePrice,
+      base_version_label: result.data.baseVersionLabel,
       active: result.data.active,
     })
     .select("id")
@@ -85,6 +87,7 @@ export async function updateProduct(
       name: result.data.name,
       description: result.data.description,
       indicative_price: result.data.indicativePrice,
+      base_version_label: result.data.baseVersionLabel,
       active: result.data.active,
     })
     .eq("id", productId)

@@ -13,7 +13,7 @@ export default function NewProductPage() {
       <Card className="max-w-xl">
         <ProductForm
           action={createProduct}
-          initial={{ name: "", description: "", indicativePrice: "", active: true }}
+          initial={{ name: "", description: "", indicativePrice: "", baseVersionLabel: "", active: true }}
           submitLabel="Product aanmaken"
         />
       </Card>
