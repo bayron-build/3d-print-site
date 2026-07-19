@@ -12,6 +12,7 @@ import {
   sendNewRequestNotification,
 } from "@/lib/email/notifications";
 import { formatColorSnapshot } from "@/lib/colors";
+import { checkVersionRow } from "@/lib/products/versions";
 
 export type SubmitState = { errors: Record<string, string> | null };
 
@@ -24,6 +25,9 @@ export type UploadedFile = {
 };
 
 const GENERIC_ERROR = "Er ging iets mis, probeer het later opnieuw.";
+
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function submitRequest(
   _prevState: SubmitState,
@@ -63,6 +67,7 @@ export async function submitRequest(
     quantity: String(formData.get("quantity") ?? ""),
     licenseAccepted: formData.get("licenseAccepted") === "on",
     colorId: String(formData.get("colorId") ?? ""),
+    versionId: String(formData.get("versionId") ?? ""),
     files: type === "custom" ? [] : uploadMeta,
     photos: type === "custom" ? uploadMeta : [],
   });
@@ -99,6 +104,35 @@ export async function submitRequest(
     }
     unitPrice = product.indicative_price;
     productName = product.name;
+  }
+
+  // Same trust rule as the price and the color: the browser sends only a
+  // version id; the server resolves name and price itself and snapshots
+  // both. The product lookup above already proved the product is active —
+  // and RLS hides versions of inactive products anyway, so a version of an
+  // inactive product resolves to "no row" here.
+  let versionName: string | null = null;
+  if (result.data.type === "catalog" && result.data.versionId !== null) {
+    // Reject malformed ids before the query: a non-uuid string would make
+    // Postgres error on the cast, which must read as a bad choice, not as a
+    // transport failure.
+    if (!UUID_PATTERN.test(result.data.versionId)) {
+      return { errors: { versionId: "Kies een versie." } };
+    }
+    const { data: versionRow, error: versionError } = await supabase
+      .from("product_versions")
+      .select("product_id, name, price")
+      .eq("id", result.data.versionId)
+      .maybeSingle();
+    if (versionError) {
+      return { errors: { form: GENERIC_ERROR } };
+    }
+    const version = checkVersionRow(versionRow, result.data.productId!);
+    if (!version.ok) {
+      return { errors: { versionId: "Kies een versie." } };
+    }
+    unitPrice = version.price;
+    versionName = version.name;
   }
 
   // Same trust rule as the price: the browser sends only a color id, the
@@ -142,6 +176,7 @@ export async function submitRequest(
     quantity: result.data.quantity,
     license_accepted: result.data.licenseAccepted,
     unit_price: unitPrice,
+    version_name: versionName,
   });
 
   if (requestError) {

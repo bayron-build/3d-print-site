@@ -37,6 +37,12 @@ export type ProductOption = {
 
 export type FormType = "catalog" | "file" | "custom";
 
+export type PreselectedVersion = {
+  id: string;
+  name: string;
+  price: number | string;
+};
+
 const initialState: SubmitState = { errors: null };
 
 // The three request types as selectable cards (spec: bare radios read as
@@ -66,12 +72,14 @@ const TYPE_OPTIONS = [
 export function RequestForm({
   products,
   preselectedProductId,
+  preselectedVersion,
   initialType,
   colors,
   initialColorId,
 }: {
   products: ProductOption[];
   preselectedProductId: string;
+  preselectedVersion: PreselectedVersion | null;
   initialType: FormType | "";
   colors: FilamentColor[];
   initialColorId: string;
@@ -86,6 +94,12 @@ export function RequestForm({
   );
   const [productId, setProductId] = useState(preselectedProductId);
   const [colorId, setColorId] = useState(initialColorId);
+  // "" = base-price option. The only non-empty value ever set is the
+  // preselected one — the form itself has no version picker (the customer
+  // picks on the product page).
+  const [versionId, setVersionId] = useState(
+    preselectedVersion ? preselectedVersion.id : ""
+  );
   const [quantity, setQuantity] = useState("1");
   const [files, setFiles] = useState<File[]>([]);
   const [photos, setPhotos] = useState<File[]>([]);
@@ -125,8 +139,11 @@ export function RequestForm({
     type === "catalog"
       ? products.find((product) => product.id === productId)
       : undefined;
-  const unitPrice =
-    selectedProduct && selectedProduct.indicative_price !== null
+  const selectedVersion =
+    type === "catalog" && versionId !== "" ? preselectedVersion : null;
+  const unitPrice = selectedVersion
+    ? toAmount(selectedVersion.price)
+    : selectedProduct && selectedProduct.indicative_price !== null
       ? toAmount(selectedProduct.indicative_price)
       : null;
   const parsedQuantity = Number.parseInt(quantity, 10);
@@ -159,6 +176,7 @@ export function RequestForm({
       quantity: String(formData.get("quantity") ?? ""),
       licenseAccepted: formData.get("licenseAccepted") === "on",
       colorId: String(formData.get("colorId") ?? ""),
+      versionId: String(formData.get("versionId") ?? ""),
       // Only the upload kind matching the active type is sent to validation:
       // a leftover selection from another type must not block the submit with
       // an error that never renders (mirrors the uploadTargets scoping below).
@@ -282,7 +300,10 @@ export function RequestForm({
               <Select
                 name="productId"
                 value={productId}
-                onChange={(event) => setProductId(event.target.value)}
+                onChange={(event) => {
+                  setProductId(event.target.value);
+                  setVersionId("");
+                }}
               >
                 <option value="">— Kies een product —</option>
                 {products.map((product) => (
@@ -294,6 +315,19 @@ export function RequestForm({
                 ))}
               </Select>
             </Field>
+
+            <input type="hidden" name="versionId" value={versionId} />
+            {selectedVersion && (
+              <p className="text-sm text-slate-600">
+                Versie:{" "}
+                <span className="font-medium text-slate-900">
+                  {selectedVersion.name}
+                </span>
+              </p>
+            )}
+            {errors.versionId && (
+              <p className="text-sm text-red-600">{errors.versionId}</p>
+            )}
 
             {unitPrice !== null && (
               <div className="rounded-lg bg-violet-50 px-4 py-3 text-sm">

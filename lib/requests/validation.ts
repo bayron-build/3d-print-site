@@ -43,6 +43,8 @@ export type RequestInput = {
   quantity: string;
   licenseAccepted: boolean;
   colorId: string;
+  // Catalog only: chosen product_versions id; "" = the base-price option.
+  versionId: string;
   files: FileMeta[];
   photos: FileMeta[];
 };
@@ -62,6 +64,9 @@ export type ValidRequest = {
   // Catalog only: id in filament_colors. The server action resolves it to a
   // snapshot string; the id itself is never stored.
   colorId: string | null;
+  // Catalog only: id in product_versions, null for the base-price option.
+  // The server action resolves it to a name+price snapshot itself.
+  versionId: string | null;
 };
 
 export type ValidationResult =
@@ -106,6 +111,10 @@ export function validateRequest(input: RequestInput): ValidationResult {
   if (type === "catalog" && !colorId) {
     errors.colorId = "Kies een kleur.";
   }
+
+  // No validation rule: an empty id IS the base-price option. Existence and
+  // ownership are the server action's job — this module stays I/O-free.
+  const versionId = input.versionId.trim();
 
   // Custom requests are quoted per piece anyway; quantity applies to the
   // other two types and defaults to 1.
@@ -167,6 +176,7 @@ export function validateRequest(input: RequestInput): ValidationResult {
       quantity,
       licenseAccepted: input.licenseAccepted,
       colorId: type === "catalog" ? colorId : null,
+      versionId: type === "catalog" ? versionId || null : null,
     },
   };
 }

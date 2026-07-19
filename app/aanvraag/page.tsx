@@ -10,7 +10,12 @@ import {
 } from "@/components/ui/icons";
 import { SITE_EMAIL } from "@/lib/site";
 import { resolveColorId, type FilamentColor } from "@/lib/colors";
-import { RequestForm, type FormType, type ProductOption } from "./request-form";
+import {
+  RequestForm,
+  type FormType,
+  type PreselectedVersion,
+  type ProductOption,
+} from "./request-form";
 
 export const metadata = { title: "Aanvraag indienen" };
 
@@ -20,7 +25,7 @@ export default async function RequestPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   // Next 16: searchParams is a Promise and must be awaited.
-  const { product, type, color } = await searchParams;
+  const { product, type, color, version } = await searchParams;
   const supabase = await createClient();
 
   // RLS already limits anon to active products; the explicit filter keeps
@@ -54,6 +59,25 @@ export default async function RequestPage({
   const initialType: FormType | "" =
     type === "catalog" || type === "file" || type === "custom" ? type : "";
 
+  // ?version= from the detail page: resolve to a real version OF the
+  // preselected product, else silently ignore — same posture as ?product=.
+  // A malformed uuid just errors the query, which lands in the same ignore.
+  let preselectedVersion: PreselectedVersion | null = null;
+  if (preselected && typeof version === "string" && version !== "") {
+    const { data: versionRow } = await supabase
+      .from("product_versions")
+      .select("id, product_id, name, price")
+      .eq("id", version)
+      .maybeSingle();
+    if (versionRow && versionRow.product_id === preselected) {
+      preselectedVersion = {
+        id: versionRow.id,
+        name: versionRow.name,
+        price: versionRow.price,
+      };
+    }
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
@@ -78,6 +102,7 @@ export default async function RequestPage({
               <RequestForm
                 products={productList}
                 preselectedProductId={preselected}
+                preselectedVersion={preselectedVersion}
                 initialType={initialType}
                 colors={colors}
                 initialColorId={initialColorId}

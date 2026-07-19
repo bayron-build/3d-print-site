@@ -24,6 +24,7 @@ function input(overrides: Partial<RequestInput> = {}): RequestInput {
     quantity: "1",
     licenseAccepted: false,
     colorId: "",
+    versionId: "",
     files: [],
     photos: [],
     ...overrides,
@@ -61,6 +62,7 @@ describe("validateRequest", () => {
         quantity: 2,
         licenseAccepted: false,
         colorId: "basic-black",
+        versionId: null,
       },
     });
   });
@@ -204,6 +206,46 @@ describe("validateRequest", () => {
     );
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.errors.photos).toBeDefined();
+  });
+});
+
+describe("validateRequest versionId", () => {
+  it("passes a catalog versionId through trimmed", () => {
+    const result = validateRequest(
+      input({
+        type: "catalog",
+        productId: "abc-123",
+        colorId: "basic-black",
+        versionId: " 11111111-1111-1111-1111-111111111111 ",
+      })
+    );
+    expect(result.ok && result.data.versionId).toBe(
+      "11111111-1111-1111-1111-111111111111"
+    );
+  });
+
+  it("treats an empty versionId as the base option (null)", () => {
+    const result = validateRequest(
+      input({
+        type: "catalog",
+        productId: "abc-123",
+        colorId: "basic-black",
+        versionId: "",
+      })
+    );
+    expect(result.ok && result.data.versionId).toBeNull();
+  });
+
+  it("nulls versionId for non-catalog types", () => {
+    const result = validateRequest(
+      input({
+        type: "file",
+        files: [stlFile],
+        licenseAccepted: true,
+        versionId: "abc",
+      })
+    );
+    expect(result.ok && result.data.versionId).toBeNull();
   });
 });
 
