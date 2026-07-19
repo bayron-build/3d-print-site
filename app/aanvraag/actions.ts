@@ -212,6 +212,7 @@ export async function submitRequest(
             unitPrice,
             quantity: result.data.quantity,
             color: colorSnapshot ?? undefined,
+            versionName: versionName ?? undefined,
           }
         : undefined,
   });
@@ -229,6 +230,7 @@ export async function submitRequest(
             unitPrice,
             quantity: result.data.quantity,
             color: colorSnapshot ?? undefined,
+            versionName: versionName ?? undefined,
           }
         : undefined,
     request:

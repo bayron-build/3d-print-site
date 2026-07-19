@@ -35,6 +35,8 @@ export type OrderSummary = {
   quantity: number;
   // Color snapshot ("PLA Basic – Black"), present for new catalog orders.
   color?: string;
+  // Chosen version's name ("Dubbel"), absent for base-price orders.
+  versionName?: string;
 };
 
 export type ConfirmationEmailInput = {
@@ -48,10 +50,14 @@ export function confirmationEmail(
 ): EmailContent {
   if (input.order) {
     const total = toAmount(input.order.unitPrice) * input.order.quantity;
-    const lines = [
+    const lines: string[] = [];
+    if (input.order.versionName) {
+      lines.push(`Versie: ${escapeHtml(input.order.versionName)}`);
+    }
+    lines.push(
       `Prijs per stuk: ${formatEuro(input.order.unitPrice)}`,
-      `Aantal: ${input.order.quantity}`,
-    ];
+      `Aantal: ${input.order.quantity}`
+    );
     if (input.order.color) {
       lines.push(`Kleur: ${escapeHtml(input.order.color)}`);
     }
@@ -155,6 +161,7 @@ export type OwnerNotificationInput = {
     unitPrice: number | string;
     quantity: number;
     color?: string;
+    versionName?: string;
   };
   request?: {
     description: string | null;
@@ -180,7 +187,11 @@ export function ownerNotificationEmail(
   if (input.order) {
     const total = toAmount(input.order.unitPrice) * input.order.quantity;
     details.push(
-      `Product: ${escapeHtml(input.order.productName)}`,
+      `Product: ${escapeHtml(input.order.productName)}${
+        input.order.versionName
+          ? ` — ${escapeHtml(input.order.versionName)}`
+          : ""
+      }`,
       `Aantal: ${input.order.quantity}`
     );
     if (input.order.color) {

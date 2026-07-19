@@ -56,6 +56,9 @@ type TokenRequest = {
   // that runs the key is absent from the row, so the type must admit undefined
   // rather than pretend every row carries it.
   unit_price?: number | string | null;
+  // Optional: migration 0009 adds version_name to the RPC's result table.
+  // Until that runs the key is absent, so the type must admit undefined.
+  version_name?: string | null;
   created_at: string;
   file_names: string[];
 };
@@ -161,7 +164,10 @@ export default async function StatusPage({
         {request.product_name && (
           <>
             <dt className="text-slate-600">Product</dt>
-            <dd>{request.product_name}</dd>
+            <dd>
+              {request.product_name}
+              {request.version_name ? ` — ${request.version_name}` : ""}
+            </dd>
           </>
         )}
 

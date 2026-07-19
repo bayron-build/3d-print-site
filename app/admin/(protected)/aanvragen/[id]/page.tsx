@@ -43,7 +43,7 @@ export default async function RequestDetailPage({
   const { data: request, error } = await supabase
     .from("requests")
     .select(
-      "id, created_at, type, customer_name, email, phone, description, color, material, quantity, status, quote_design_fee, quote_print_fee, unit_price, admin_notes, access_token, products(name)"
+      "id, created_at, type, customer_name, email, phone, description, color, material, quantity, status, quote_design_fee, quote_print_fee, unit_price, version_name, admin_notes, access_token, products(name)"
     )
     .eq("id", id)
     .maybeSingle();
@@ -133,7 +133,10 @@ export default async function RequestDetailPage({
           {productName && (
             <>
               <dt className="text-slate-600 dark:text-slate-300">Product</dt>
-              <dd>{productName}</dd>
+              <dd>
+                {productName}
+                {request.version_name ? ` — ${request.version_name}` : ""}
+              </dd>
             </>
           )}
 

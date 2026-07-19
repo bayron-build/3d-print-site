@@ -267,3 +267,56 @@ describe("ownerNotificationEmail", () => {
     );
   });
 });
+
+describe("version name in emails", () => {
+  it("confirmation email lists the version", () => {
+    const { html } = confirmationEmail({
+      customerName: "Jan",
+      statusUrl: "https://example.test/s/1",
+      order: { unitPrice: "40.00", quantity: 1, versionName: "Dubbel" },
+    });
+    expect(html).toContain("Versie: Dubbel");
+  });
+
+  it("confirmation email omits the version line without one", () => {
+    const { html } = confirmationEmail({
+      customerName: "Jan",
+      statusUrl: "https://example.test/s/1",
+      order: { unitPrice: "23.00", quantity: 1 },
+    });
+    expect(html).not.toContain("Versie:");
+  });
+
+  it("owner notification joins product and version with an em-dash", () => {
+    const { html } = ownerNotificationEmail({
+      customerName: "Jan",
+      email: "jan@example.test",
+      phone: null,
+      adminUrl: "https://example.test/admin/aanvragen/1",
+      order: {
+        productName: "Theedispenser",
+        unitPrice: "40.00",
+        quantity: 1,
+        versionName: "Dubbel",
+      },
+    });
+    expect(html).toContain("Product: Theedispenser — Dubbel");
+  });
+
+  it("owner notification escapes the version name", () => {
+    const { html } = ownerNotificationEmail({
+      customerName: "Jan",
+      email: "jan@example.test",
+      phone: null,
+      adminUrl: "https://example.test/admin/aanvragen/1",
+      order: {
+        productName: "Theedispenser",
+        unitPrice: "40.00",
+        quantity: 1,
+        versionName: "<b>Dubbel</b>",
+      },
+    });
+    expect(html).toContain("&lt;b&gt;Dubbel&lt;/b&gt;");
+    expect(html).not.toContain("<b>Dubbel</b>");
+  });
+});
