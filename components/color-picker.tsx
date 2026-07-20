@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   isNearWhite,
   lineLabel,
@@ -10,6 +11,12 @@ import {
 // Bambu-style rows of round swatches, grouped per filament line. Controlled
 // component: the parent owns the selected id (product page → Bestellen link,
 // order form → hidden field). Public pages are light-mode only.
+//
+// The full palette is 55 swatches, which reads as overwhelming, so by default
+// only the in-stock colors show and the rest sit behind "Meer kleuren". Every
+// color stays orderable — this is presentation, not a filter. If the owner has
+// nothing marked in stock, showing an empty picker would be worse than the
+// long list, so that case falls back to the full palette.
 export function ColorPicker({
   colors,
   selectedId,
@@ -19,12 +26,22 @@ export function ColorPicker({
   selectedId: string;
   onSelect: (id: string) => void;
 }) {
-  if (colors.length === 0) return null;
+  const inStock = colors.filter((color) => color.available);
+  const collapsible = inStock.length > 0 && inStock.length < colors.length;
   const selected = colors.find((color) => color.id === selectedId);
+  // A color arriving from ?color= (or the product page link) may live in the
+  // hidden half; start expanded so the customer sees what is selected.
+  const [expanded, setExpanded] = useState(
+    selected !== undefined && !selected.available
+  );
+
+  if (colors.length === 0) return null;
+  const visible = !collapsible || expanded ? colors : inStock;
+
   return (
     <div className="flex flex-col gap-3">
       {(["basic", "matte"] as const).map((line) => {
-        const group = colors.filter((color) => color.line === line);
+        const group = visible.filter((color) => color.line === line);
         if (group.length === 0) return null;
         return (
           <div key={line}>
@@ -54,6 +71,18 @@ export function ColorPicker({
           </div>
         );
       })}
+      {collapsible && (
+        <button
+          type="button"
+          onClick={() => setExpanded((value) => !value)}
+          aria-expanded={expanded}
+          className="self-start text-sm font-medium text-violet-700 hover:underline"
+        >
+          {expanded
+            ? "Minder kleuren tonen"
+            : `Meer kleuren (${colors.length - inStock.length}, langere levertijd)`}
+        </button>
+      )}
       {selected && (
         <p className="text-sm">
           <span className="font-medium text-slate-900">

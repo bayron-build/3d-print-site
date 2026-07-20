@@ -3,11 +3,10 @@
 import { useState } from "react";
 import { ButtonLink } from "@/components/ui/button";
 import { ColorPicker } from "@/components/color-picker";
-import { CubeLogo } from "@/components/site-header";
 import { DEFAULT_COLOR_ID, type FilamentColor } from "@/lib/colors";
 import { formatEuro } from "@/lib/format";
-import { productPhotoUrl } from "@/lib/products/photos";
 import type { VersionOption } from "@/lib/products/versions";
+import { Gallery } from "./gallery";
 import { VersionPicker } from "./version-picker";
 
 export type ProductViewData = {
@@ -38,8 +37,12 @@ export function ProductView({
   const selected = options.find((option) => option.id === versionId);
 
   const price = selected ? selected.price : product.indicative_price;
-  const cover = selected?.photoPath ?? product.photos[0];
-  const rest = product.photos.slice(1);
+  // A version photo leads the gallery without dropping the product's own
+  // photos; without one the product photos keep their admin order.
+  const versionPhoto = selected?.photoPath ?? null;
+  const photos = versionPhoto
+    ? [versionPhoto, ...product.photos.filter((path) => path !== versionPhoto)]
+    : product.photos;
 
   let href = `/aanvraag?product=${product.id}`;
   if (colors.length > 0) href += `&color=${colorId}`;
@@ -47,35 +50,9 @@ export function ProductView({
 
   return (
     <div className="mt-6 grid gap-10 lg:grid-cols-2">
-      <div className="flex flex-col gap-4">
-        <div className="aspect-square w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
-          {cover ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={productPhotoUrl(cover)}
-              alt={product.name}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              <CubeLogo className="h-16 w-16 text-slate-300" />
-            </div>
-          )}
-        </div>
-        {rest.length > 0 && (
-          <div className="grid grid-cols-3 gap-4">
-            {rest.map((path) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={path}
-                src={productPhotoUrl(path)}
-                alt={product.name}
-                className="aspect-square w-full rounded-xl border border-slate-200 object-cover"
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Keyed on the version photo so picking another uitvoering resets the
+          gallery to its first (version) photo instead of a stale index. */}
+      <Gallery key={versionPhoto ?? ""} photos={photos} alt={product.name} />
       <div className="flex flex-col gap-4">
         <h1 className="text-3xl font-bold text-slate-900">{product.name}</h1>
         {price !== null && (
