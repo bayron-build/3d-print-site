@@ -76,7 +76,7 @@ describe("confirmationEmail — fixed-price order", () => {
       order,
     });
     expect(email.html).toContain(
-      "Dit is een vaste prijs — je hoeft geen offerte af te wachten."
+      "Dit is een vaste prijs, je hoeft geen offerte af te wachten."
     );
   });
 
@@ -259,11 +259,11 @@ describe("ownerNotificationEmail", () => {
         productName: "Vaas",
         unitPrice: 10,
         quantity: 2,
-        color: "PLA Matte – Charcoal (niet op voorraad — langere levertijd)",
+        color: "PLA Matte – Charcoal (niet op voorraad, langere levertijd)",
       },
     });
     expect(html).toContain(
-      "Kleur: PLA Matte – Charcoal (niet op voorraad — langere levertijd)"
+      "Kleur: PLA Matte – Charcoal (niet op voorraad, langere levertijd)"
     );
   });
 });
@@ -300,7 +300,7 @@ describe("version name in emails", () => {
         versionName: "Dubbel",
       },
     });
-    expect(html).toContain("Product: Theedispenser — Dubbel");
+    expect(html).toContain("Product: Theedispenser (Dubbel)");
   });
 
   it("owner notification escapes the version name", () => {

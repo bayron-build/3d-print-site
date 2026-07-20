@@ -24,7 +24,7 @@ describe("formatColorSnapshot", () => {
   it("appends the delivery note for an out-of-stock color", () => {
     expect(
       formatColorSnapshot({ line: "matte", name: "Charcoal", available: false })
-    ).toBe("PLA Matte – Charcoal (niet op voorraad — langere levertijd)");
+    ).toBe("PLA Matte – Charcoal (niet op voorraad, langere levertijd)");
   });
 });
 

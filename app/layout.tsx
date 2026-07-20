@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "PrintCraft by Bayron — 3D-printservice",
-    template: "%s — PrintCraft",
+    default: "PrintCraft by Bayron | 3D-printservice",
+    template: "%s | PrintCraft",
   },
   description:
     "Lokale 3D-printservice: bestel uit de catalogus, upload je eigen ontwerp of vraag een ontwerp op maat aan.",

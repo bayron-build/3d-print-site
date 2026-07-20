@@ -68,7 +68,7 @@ export function confirmationEmail(
         `Beste ${escapeHtml(input.customerName)},`,
         "Bedankt voor je bestelling! We hebben hem in goede orde ontvangen.",
         lines.join("<br>"),
-        "Dit is een vaste prijs — je hoeft geen offerte af te wachten. Betalen kan bij het ophalen, per bankoverschrijving of Tikkie.",
+        "Dit is een vaste prijs, je hoeft geen offerte af te wachten. Betalen kan bij het ophalen, per bankoverschrijving of Tikkie.",
         `Via jouw persoonlijke pagina kun je de bestelling volgen: ${statusLink(
           input.statusUrl,
           "volg je bestelling"
@@ -189,7 +189,7 @@ export function ownerNotificationEmail(
     details.push(
       `Product: ${escapeHtml(input.order.productName)}${
         input.order.versionName
-          ? ` — ${escapeHtml(input.order.versionName)}`
+          ? ` (${escapeHtml(input.order.versionName)})`
           : ""
       }`,
       `Aantal: ${input.order.quantity}`

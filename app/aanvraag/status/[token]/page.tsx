@@ -166,7 +166,7 @@ export default async function StatusPage({
             <dt className="text-slate-600">Product</dt>
             <dd>
               {request.product_name}
-              {request.version_name ? ` — ${request.version_name}` : ""}
+              {request.version_name ? ` (${request.version_name})` : ""}
             </dd>
           </>
         )}
@@ -226,7 +226,7 @@ export default async function StatusPage({
               saying nothing. */}
           {status !== "rejected" && (
             <p className="mt-4 text-sm text-slate-600">
-              Vaste prijs — je hoeft nergens akkoord op te geven. Betalen kan
+              Vaste prijs, je hoeft nergens akkoord op te geven. Betalen kan
               bij het ophalen, per bankoverschrijving of Tikkie.
             </p>
           )}

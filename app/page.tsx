@@ -25,7 +25,7 @@ import heroPrinter from "@/public/images/hero-printer-dark.jpg";
 const STEPS = [
   ["Contact", "Stuur je idee, bestand of aanvraag via het formulier.", IconChat],
   ["Prijs", "Kant-en-klaar heeft een vaste prijs. Voor eigen werk ontvang je een offerte.", IconClipboard],
-  ["Printen", "We printen je opdracht met zorg — bij eigen werk na jouw akkoord.", IconPrinter],
+  ["Printen", "We printen je opdracht met zorg. Bij eigen werk pas na jouw akkoord.", IconPrinter],
   ["Levering", "Ophalen of bezorgen; betalen per bankoverschrijving of Tikkie.", IconTruck],
 ] as const;
 
@@ -145,7 +145,7 @@ export default async function Home() {
                 </h2>
                 <p className="text-sm text-slate-600">
                   Of het nu een prototype, een vervangingsonderdeel of iets
-                  unieks is — samen maken we het echt.
+                  unieks is: samen maken we het echt.
                 </p>
                 <ButtonLink href="/aanvraag?type=custom" className="self-start">
                   Custom ontwerp aanvragen →
@@ -180,7 +180,7 @@ export default async function Home() {
               <p className="mt-8 text-red-700">{error.message}</p>
             ) : productList.length === 0 ? (
               <p className="mt-8 max-w-xl text-slate-600">
-                De catalogus wordt gevuld — binnenkort vind je hier
+                De catalogus wordt gevuld. Binnenkort vind je hier
                 kant-en-klare modellen. Een eigen bestand of idee kun je nu al
                 insturen.
               </p>

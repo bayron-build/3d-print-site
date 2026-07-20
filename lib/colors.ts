@@ -15,7 +15,7 @@ export const DEFAULT_COLOR_ID = "basic-black";
 
 // Shown under the picker when the selected color is not in stock.
 export const OUT_OF_STOCK_NOTE =
-  "Deze kleur is niet op voorraad — levering duurt enkele dagen langer.";
+  "Deze kleur is niet op voorraad, levering duurt enkele dagen langer.";
 
 export function lineLabel(line: string): string {
   return line === "matte" ? "PLA Matte" : "PLA Basic";
@@ -31,7 +31,7 @@ export function formatColorSnapshot(color: {
   const base = `${lineLabel(color.line)} – ${color.name}`;
   return color.available
     ? base
-    : `${base} (niet op voorraad — langere levertijd)`;
+    : `${base} (niet op voorraad, langere levertijd)`;
 }
 
 // ?color= URL param → a known color id, else the default. Same silent-ignore

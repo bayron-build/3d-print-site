@@ -46,7 +46,7 @@ export function SiteFooter() {
             {SITE_EMAIL}
           </a>
           <p>
-            Vragen of een speciale wens? Mail gerust — je krijgt snel antwoord.
+            Vragen of een speciale wens? Mail gerust, je krijgt snel antwoord.
           </p>
           <p>Betalen kan per bankoverschrijving of Tikkie.</p>
         </div>

@@ -305,7 +305,7 @@ export function RequestForm({
                   setVersionId("");
                 }}
               >
-                <option value="">— Kies een product —</option>
+                <option value="">Kies een product</option>
                 {products.map((product) => (
                   <option key={product.id} value={product.id}>
                     {product.name}
@@ -334,7 +334,7 @@ export function RequestForm({
                 <p className="font-medium text-slate-900">
                   Vaste prijs: {formatEuro(unitPrice)} per stuk
                   {previewQuantity > 1 &&
-                    ` — totaal ${formatEuro(unitPrice * previewQuantity)}`}
+                    `, totaal ${formatEuro(unitPrice * previewQuantity)}`}
                 </p>
                 <p className="mt-1 text-slate-600">
                   Geen offerte nodig: na je bestelling gaan we direct voor je

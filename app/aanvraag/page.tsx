@@ -151,7 +151,7 @@ function RequestSidebar() {
         <h2 className="font-semibold text-slate-900">Goed om te weten</h2>
         <ul className="mt-3 flex flex-col gap-2 text-sm text-slate-600">
           <li>
-            Kant-en-klare producten hebben een vaste prijs — geen offerte
+            Kant-en-klare producten hebben een vaste prijs, dus geen offerte
             nodig.
           </li>
           <li>

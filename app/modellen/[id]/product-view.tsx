@@ -60,7 +60,7 @@ export function ProductView({
             Vaste prijs{" "}
             <span className="font-semibold">{formatEuro(price)}</span>
             <span className="block text-sm text-slate-500">
-              Geen offerte nodig — na je bestelling gaan we direct voor je
+              Geen offerte nodig. Na je bestelling gaan we direct voor je
               aan de slag.
             </span>
           </p>
